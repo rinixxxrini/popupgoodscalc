@@ -263,6 +263,16 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .menucard .row{margin-top:auto;justify-content:flex-end}
 .menucard .step button{width:30px;height:30px}
 .menucard .step .qin{width:38px;height:30px}
+
+/* ---- 구분 탭: MD 구매 | 럭키 드로우 | 카페 음료 | 이벤트 ---- */
+.sectabs{display:flex;border-bottom:1px solid var(--line);margin:0 0 10px;overflow-x:auto;scrollbar-width:none}
+.sectabs::-webkit-scrollbar{display:none}
+.stab{flex:1 1 0;min-width:max-content;display:flex;align-items:center;justify-content:center;gap:5px;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:600;padding:10px 8px;white-space:nowrap;cursor:pointer}
+.stab .tc{font-size:11px;background:var(--chip);color:var(--muted);padding:0 6px;border-radius:999px;min-width:18px;text-align:center;font-weight:600}
+.stab[aria-pressed="true"]{color:var(--wine);border-bottom-color:var(--wine)}
+.stab[aria-pressed="true"] .tc{background:var(--wine-soft);color:var(--wine)}
+.stab:focus-visible{outline:2px solid var(--wine);outline-offset:-2px}
+@media (max-width:420px){.stab{font-size:12.5px;padding:10px 3px;gap:3px;letter-spacing:-.02em}.stab .tc{font-size:10.5px;padding:0 4px;min-width:16px}}
 </style>
 </head>
 <body>
@@ -296,9 +306,14 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
   </header>
 
   <div class="cartbox">
-    <div class="tabrow">
+    <nav class="sectabs" id="secTabs" aria-label="구분">
+      <button type="button" class="stab" id="mdTab">MD 구매</button>
+      <button type="button" class="stab" id="ldTab" aria-label="럭키드로우"></button>
+      <button type="button" class="stab" id="cafeTab" hidden></button>
+      <button type="button" class="stab" id="evTab" hidden></button>
+    </nav>
+    <div class="tabrow" id="tabrow">
       <div class="tabs" id="tabs" role="group" aria-label="MD 장바구니"></div>
-      <button type="button" class="ldtab" id="ldTab" aria-label="럭키드로우"></button>
     </div>
     <div class="cartedit" id="cartedit">
       <input id="cname" maxlength="14" aria-label="장바구니 이름" placeholder="장바구니 이름">
@@ -703,7 +718,7 @@ const EVENTS = [{
   giftTitle:"증정품",
   cartHint:"장바구니 1개 = 영수증 1건이에요. 증정품은 당일 영수증에 한해 합산돼서 모든 장바구니를 합쳐 계산해요. 공지에는 구매 수량 제한이 따로 없었어요.",
   gifts:[
-    {id:"coaster",short:"코스터",name:"코스터 (8종)",cond:"콜라보 메뉴 1개당 1매 랜덤 · 당일 메뉴 8개 이상이면 8종 전부 증정",img:"coaster",rule:{type:"items",nos:[1,2,3,4,5,6,7]},unit:"매"},
+    {id:"coaster",cafe:true,short:"코스터",name:"코스터 (8종)",cond:"콜라보 메뉴 1개당 1매 랜덤 · 당일 메뉴 8개 이상이면 8종 전부 증정",img:"coaster",rule:{type:"items",nos:[1,2,3,4,5,6,7]},unit:"매"},
     {id:"postcard",short:"일러스트 엽서",name:"일러스트 엽서 (16종)",cond:"콜라보 상품 1만원 당 1매 랜덤 · 당일 16만원 이상이면 16종 전부 증정",img:"postcard",rule:{type:"per",amount:10000},unit:"매"},
     {id:"poster",short:"A4 포스터",name:"A4 포스터 (3종)",cond:"콜라보 상품 5만원 당 1매 랜덤 · 당일 15만원 이상이면 3종 전부 증정",img:"poster",rule:{type:"per",amount:50000},unit:"매"},
   ],
@@ -803,9 +818,9 @@ const EVENTS = [{
   cartHint:"장바구니 1개 = 영수증 1건이에요. 1만원 엽서는 영수증 1건 기준이고, 5만원 SET은 당일 결제 영수증을 합쳐서 받아요. MD는 품목별 최대 5개예요.",
   multiNote:"5만원 SET은 당일 영수증을 합산해서 받을 수 있고, 1만원 엽서는 영수증 1건 기준이에요. 콜라보 메뉴 금액은 합산에서 제외돼요.",
   gifts:[
-    {id:"coaster",short:"코스터",name:"코스터 (8종)",cond:"콜라보 메뉴 단품 1개당 1종 랜덤 · 쿠키는 2개 주문 시 1종",img:"coaster",rule:{type:"parts",parts:[{nos:[1,2,3,4,5,6]},{nos:[7],div:2}]},unit:"매"},
-    {id:"stamp",short:"스탬프",name:"메뉴 스탬프",cond:"콜라보 메뉴 1개당 1개로 계산 (스탬프 카드 글씨가 작아 확인 필요) · 실제 구매 시점에만 적립",img:"stamp",rule:{type:"items",nos:[1,2,3,4,5,6,7]},unit:"개"},
-    {id:"seal",short:"띠부띠부씰",name:"띠부띠부씰 3종 SET",cond:"스탬프 6개 적립 시 1세트 증정",img:"seal",rule:{type:"items",nos:[1,2,3,4,5,6,7],div:6},unit:"세트"},
+    {id:"coaster",cafe:true,short:"코스터",name:"코스터 (8종)",cond:"콜라보 메뉴 단품 1개당 1종 랜덤 · 쿠키는 2개 주문 시 1종",img:"coaster",rule:{type:"parts",parts:[{nos:[1,2,3,4,5,6]},{nos:[7],div:2}]},unit:"매"},
+    {id:"stamp",cafe:true,short:"스탬프",name:"메뉴 스탬프",cond:"콜라보 메뉴 1개당 1개로 계산 (스탬프 카드 글씨가 작아 확인 필요) · 실제 구매 시점에만 적립",img:"stamp",rule:{type:"items",nos:[1,2,3,4,5,6,7]},unit:"개"},
+    {id:"seal",cafe:true,short:"띠부띠부씰",name:"띠부띠부씰 3종 SET",cond:"스탬프 6개 적립 시 1세트 증정",img:"seal",rule:{type:"items",nos:[1,2,3,4,5,6,7],div:6},unit:"세트"},
     {id:"postcard",short:"일러스트 엽서",name:"일러스트 엽서 (16종)",cond:"콜라보 MD 1만원 당 1종 랜덤 · 영수증 합산 불가(영수증 1건 기준)",img:"postcard",rule:{type:"per",amount:10000},unit:"종"},
     {id:"set",short:"엽서+홀로그램 SET",name:"엽서 + 홀로그램 포토카드 SET (2종)",cond:"콜라보 MD 5만원 당 1세트 랜덤 · 당일 결제 영수증은 합산 가능",img:"set",rule:{type:"per",amount:50000},unit:"세트",combine:true},
   ],
@@ -827,6 +842,7 @@ const EVENTS = [{
   ],
   complete:{
     title:"해시태그 이벤트 (일러스트 포토카드 9종)",
+    tab:"해시태그 이벤트",
     sub:"1일 1인 1회 수령 · 하루 최대 3장 · 체크는 자정이 지나면 풀려요",
     items:[
       {k:"h1",daily:true,img:"pc",name:"① 공식 플랫폼 전체 회차 소장 인증 (+1장)",cond:"<마인드 더 갭> 공식 플랫폼에서 전체 회차 소장 인증 · 스크린샷으로는 참여할 수 없어요"},
@@ -896,7 +912,14 @@ let delArmed = false, resetArmed = false;
 const skey = ev => "mdcalc-" + ev.id;
 const key = (it,v) => it.no + (v ? "-"+v : "");
 const tagOf = it => it.tag || String(it.no).padStart(2,"0");
-function freshState(){ return {carts:[{id:1,name:"장바구니 1",qty:{}}], active:1, nextId:2, done:{}, ld:{name:(typeof EV!=="undefined" && EV && EV.ldLabel) || "럭키드로우",qty:{}}}; }
+function freshState(){ return {carts:[{id:1,name:"장바구니 1",qty:{}}], active:1, nextId:2, done:{}, ld:{name:(typeof EV!=="undefined" && EV && EV.ldLabel) || "럭키드로우",qty:{}}, cafe:{name:(typeof EV!=="undefined" && EV && EV.menuCat) || "카페 메뉴",qty:{}}}; }
+const hasCafe = ev => !!(ev && ev.menuBoard);
+const isCafeItem = (it, ev) => hasCafe(ev||EV) && it.cat===(ev||EV).menuCat;
+const isCafeGift = r => hasCafe(EV) && !!r.cafe;
+const mdGifts = () => EV.gifts.filter(r=>!isCafeGift(r));
+const cafeGifts = () => EV.gifts.filter(isCafeGift);
+const evLabel = ev => (ev.complete && ev.complete.tab) || "이벤트";
+const specialActive = a => a==="ld" || a==="cafe" || a==="ev";
 function loadState(ev){
   let s = null;
   try {
@@ -912,13 +935,21 @@ function loadState(ev){
     const k = String(ldItem.no);
     if(c.qty[k]){ s.ld.qty[k] = (s.ld.qty[k]||0) + c.qty[k]; delete c.qty[k]; }
   });
-  if(s.active!=="ld" && !s.carts.some(c=>c.id===s.active)) s.active = s.carts[0].id;
+  if(!s.cafe) s.cafe = {qty:{}};
+  s.cafe.name = ev.menuCat || "카페 메뉴";
+  if(hasCafe(ev)) ev.items.filter(it=>isCafeItem(it,ev)).forEach(it=>(it.vars||[null]).forEach(v=>{
+    const k = key(it,v);
+    s.carts.forEach(c=>{ if(c.qty[k]){ s.cafe.qty[k] = (s.cafe.qty[k]||0) + c.qty[k]; delete c.qty[k]; } });
+  }));
+  if((s.active==="cafe" && !hasCafe(ev)) || (s.active==="ev" && !ev.complete) || (s.active==="ld" && !ev.hasLd)) s.active = s.carts[0].id;
+  if(!specialActive(s.active) && !s.carts.some(c=>c.id===s.active)) s.active = s.carts[0].id;
   if(!s.nextId) s.nextId = Math.max(...s.carts.map(c=>c.id)) + 1;
   return s;
 }
 const save = () => { try { localStorage.setItem(skey(EV), JSON.stringify(state)); } catch(e){} };
-const cart = () => state.active==="ld" ? state.ld : (state.carts.find(c=>c.id===state.active) || state.carts[0]);
-const poolOf = it => it.noBenefit ? [state.ld] : state.carts;
+const cart = () => state.active==="ld" ? state.ld : state.active==="cafe" ? state.cafe : (state.carts.find(c=>c.id===state.active) || state.carts[0]);
+const poolOf = it => it.noBenefit ? [state.ld] : isCafeItem(it) ? [state.cafe] : state.carts;
+const allPools = s => [...s.carts, s.ld, s.cafe||{qty:{}}];
 
 function limitLabel(it){
   if(!it.limit) return "";
@@ -983,15 +1014,25 @@ function allGifts(){
   });
   return {elig:bs.reduce((a,b)=>a+b.elig,0), g};
 }
-function giftText(g){
-  const p = EV.gifts.filter(r=>g[r.id]).map(r=>`${r.short} ${g[r.id]}`);
+function giftText(g, list){
+  const p = (list||mdGifts()).filter(r=>g[r.id]).map(r=>`${r.short} ${g[r.id]}`);
   return p.length ? p.join(" · ") : "해당 특전 없음";
 }
+function renderCafeGift(){
+  const el = $("gift");
+  const b = benefits(state.cafe), list = cafeGifts();
+  el.innerHTML = `<h2>${esc(EV.cafeGiftTitle||"메뉴 증정품")}</h2><p class="gs">${esc(state.cafe.name)} · 결제 ${won(b.pay)}</p>` +
+    list.map(r=>{ const n = b.g[r.id]; return `<div class="grow"><span class="gimg"><img src="${EV.gimg[r.img]}" alt="${esc(r.name)}"></span>
+      <span class="gmain"><span class="gname">${esc(r.name)}</span><span class="gcond">${esc(r.cond)}</span></span>
+      <span class="gcnt${n?"":" zero"}">${n}</span></div>`; }).join("") +
+    (EV.cafeNotes ? `<details class="gnote"><summary>카페 유의사항</summary><ul>${EV.cafeNotes.map(n=>`<li>${esc(n)}</li>`).join("")}</ul></details>` : "");
+}
 function renderGift(){
+  if(state.active==="cafe"){ renderCafeGift(); return; }
   const el = $("gift");
   const c = cart(), b = EV.combineCarts ? allBenefits() : benefits(c), multi = state.carts.length>1 && !EV.combineCarts;
   const ab = allBenefits();
-  const rows = EV.gifts.map(r=>{
+  const rows = mdGifts().map(r=>{
     const src = (r.combine && !EV.combineCarts) ? ab : b;
     const n = src.g[r.id], t = r.rule; let next = "", pct = null;
     if(t.type==="min"){ pct = Math.min(100, src.elig/t.amount*100); if(!n) next = `${won(t.amount-src.elig)} 더 담으면 받아요`; }
@@ -1007,7 +1048,7 @@ function renderGift(){
       <span class="gcnt${x.n?"":" zero"}">${x.n}</span></div>`).join("");
   if(multi){
     const a = allGifts(), diffs = [];
-    EV.gifts.forEach(r=>{ if(r.combine || r.rule.type==="item" || r.rule.type==="items" || r.rule.type==="parts") return; const d = giftCount(r,a.elig,{}) - a.g[r.id]; if(d>0) diffs.push(`${r.short} +${d}`); });
+    mdGifts().forEach(r=>{ if(r.combine || r.rule.type==="item" || r.rule.type==="items" || r.rule.type==="parts") return; const d = giftCount(r,a.elig,{}) - a.g[r.id]; if(d>0) diffs.push(`${r.short} +${d}`); });
     html += `<div class="gnote"><b>전체 장바구니 합계</b> · ${giftText(a.g)}<br>${esc(EV.multiNote || "특전은 결제(영수증) 단위로 계산해요. 1인 1개 특전은 전체 1개로 셌어요.")}</div>`;
     if(diffs.length) html += `<div class="gnote warn">나눠 결제하면 특전이 줄어요. 한 번에 결제하면 ${diffs.join(", ")}</div>`;
   }
@@ -1043,6 +1084,24 @@ function renderLdTab(){
   b.setAttribute("aria-pressed", state.active==="ld");
   b.setAttribute("aria-label", state.ld.name);
   b.innerHTML = `${esc(state.ld.name)}<span class="tc">${n}</span>`;
+  const cb = $("cafeTab");
+  cb.hidden = !hasCafe(EV);
+  if(hasCafe(EV)){
+    const m = Object.values(state.cafe.qty).reduce((s,q)=>s+q,0);
+    cb.setAttribute("aria-pressed", state.active==="cafe");
+    cb.innerHTML = `${esc(EV.cafeTab || "카페 음료")}<span class="tc">${m}</span>`;
+  }
+  const mb = $("mdTab");
+  mb.setAttribute("aria-pressed", !specialActive(state.active));
+  mb.innerHTML = `MD 구매<span class="tc">${state.carts.reduce((a,c)=>a+cartTotals(c).q,0)}</span>`;
+  $("secTabs").hidden = !(EV.hasLd || hasCafe(EV) || EV.complete);
+  const eb = $("evTab");
+  eb.hidden = !EV.complete;
+  if(EV.complete){
+    const its = EV.complete.items;
+    eb.setAttribute("aria-pressed", state.active==="ev");
+    eb.innerHTML = `${esc(evLabel(EV))}<span class="tc">${its.filter(isDone).length}/${its.length}</span>`;
+  }
 }
 function renderTabs(){
   const t = $("tabs");
@@ -1076,7 +1135,9 @@ function renderCatRow(){
   const row = $("catRow");
   row.innerHTML = `<span class="cl">${esc(EV.catLabel||"상품별")}</span>`;
   const minNo = c => Math.min(...ITEMS.filter(i=>i.cat===c && !i.noBenefit).map(i=>i.no));
-  ["all", ...[...EV.cats].sort((x,y)=>minNo(x)-minNo(y))].forEach(c=>{
+  const cats = EV.cats.filter(c=>ITEMS.some(i=>i.cat===c && !i.noBenefit && !isCafeItem(i)));
+  if(catFilter!=="all" && !cats.includes(catFilter)) catFilter = "all";
+  ["all", ...[...cats].sort((x,y)=>minNo(x)-minNo(y))].forEach(c=>{
     const b = document.createElement("button");
     b.type = "button";
     b.textContent = c==="all" ? "전체" : c;
@@ -1087,37 +1148,46 @@ function renderCatRow(){
 }
 function render(){
   renderTabs();
-  const isLd = state.active==="ld";
-  $("cartedit").style.display = isLd ? "none" : "";
+  const isLd = state.active==="ld", isCafe = state.active==="cafe", isEv = state.active==="ev";
+  const special = isLd || isCafe || isEv;
+  $("cartedit").style.display = special ? "none" : "";
+  $("tabrow").style.display = special ? "none" : "";
   $("ldTab").hidden = !EV.hasLd;
   $("hint").textContent = isLd
     ? `${state.ld.name} 금액은 MD 장바구니와 따로 계산돼요. 구매 특전 금액에는 포함되지 않아요.`
+    : isCafe ? (EV.cafeHint || "카페 메뉴는 여기서 따로 담아요. 메뉴 증정품도 이 탭에서 계산하고, 메뉴 금액은 구매 특전 금액에 포함되지 않아요.")
+    : isEv ? "구매와 별개로 참여하는 이벤트예요. 받았으면 체크해 두세요."
     : (EV.cartHint || "선택한 장바구니에 담겨요. 구매 제한은 모든 장바구니를 합쳐서 적용돼요.");
-  $("gift").style.display = isLd ? "none" : "";
-  $("complete").style.display = (isLd || !EV.complete) ? "none" : "";
-  $("filterRow").style.display = isLd ? "none" : "";
-  $("catRow").style.display = isLd ? "none" : "";
+  $("gift").style.display = (isLd || isEv) ? "none" : "";
+  $("complete").style.display = (isEv && EV.complete) ? "" : "none";
+  $("filterRow").style.display = special ? "none" : "";
+  $("catRow").style.display = special ? "none" : "";
   renderCatRow();
 
   const list = $("list");
   list.innerHTML = "";
+  list.style.display = isEv ? "none" : "";
   const cur = cart();
-  const items = ITEMS.filter(it=>isLd === !!it.noBenefit)
-    .filter(it=>isLd || catFilter==="all" || it.cat===catFilter)
-    .filter(it=>isLd || filter!=="limit" || it.limit)
-    .filter(it=>isLd || filter!=="picked" || itemInAny(it))
-    .sort((x,y)=>x.no-y.no);
-  if(!isLd && catFilter!=="all" && items.length){
-    const h = document.createElement("div");
-    h.className = "cathead";
-    h.innerHTML = `<b>${esc(catFilter)}</b><span>${items.length}종</span>`;
-    list.appendChild(h);
-  }
-  const menu = (!isLd && EV.menuBoard) ? items.filter(it=>it.cat===EV.menuCat) : [];
-  if(menu.length) list.appendChild(buildMenuCard(menu,cur));
-  items.filter(it=>!menu.includes(it)).forEach(it=>list.appendChild(buildItem(it,cur)));
-  if(!list.children.length){
-    list.innerHTML = `<div class="item" style="color:var(--muted)">조건에 맞는 굿즈가 없어요.</div>`;
+  if(isCafe){
+    const menu = ITEMS.filter(it=>isCafeItem(it)).sort((x,y)=>x.no-y.no);
+    list.appendChild(buildMenuCard(menu,cur));
+  } else if(!isEv){
+    const items = ITEMS.filter(it=>isLd === !!it.noBenefit)
+      .filter(it=>!isCafeItem(it))
+      .filter(it=>isLd || catFilter==="all" || it.cat===catFilter)
+      .filter(it=>isLd || filter!=="limit" || it.limit)
+      .filter(it=>isLd || filter!=="picked" || itemInAny(it))
+      .sort((x,y)=>x.no-y.no);
+    if(!isLd && catFilter!=="all" && items.length){
+      const h = document.createElement("div");
+      h.className = "cathead";
+      h.innerHTML = `<b>${esc(catFilter)}</b><span>${items.length}종</span>`;
+      list.appendChild(h);
+    }
+    items.forEach(it=>list.appendChild(buildItem(it,cur)));
+    if(!list.children.length){
+      list.innerHTML = `<div class="item" style="color:var(--muted)">조건에 맞는 굿즈가 없어요.</div>`;
+    }
   }
   updateBar();
   renderComplete();
@@ -1225,24 +1295,27 @@ function groupByCat(lines){
     return ls.length ? {cat, lines:ls, q:ls.reduce((a,l)=>a+l.q,0), sum:ls.reduce((a,l)=>a+l.sum,0)} : null;
   }).filter(Boolean);
 }
+function sidePools(){ const a = [{c:state.ld,kind:"ld"}]; if(hasCafe(EV)) a.push({c:state.cafe,kind:"cafe"}); return a; }
+const cafeGiftText = () => giftText(benefits(state.cafe).g, cafeGifts());
+const poolTotals = () => allPools(state).reduce((a,c)=>{const t=cartTotals(c);return {q:a.q+t.q,sum:a.sum+t.sum};},{q:0,sum:0});
 function updateBar(){
   renderLdTab();
-  const isLd = state.active==="ld";
-  if(!isLd) renderGift();
+  const act = state.active;
+  if(act!=="ld" && act!=="ev") renderGift();
   const cur = cart();
-  const ldNow = cartTotals(state.ld);
-  const crows = state.carts.map(c=>({t:cartTotals(c),on:c===cur,name:c.name||"이름 없음"}));
-  if(ldNow.q || isLd) crows.push({t:ldNow,on:isLd,name:state.ld.name});
+  const crows = state.carts.map(c=>({t:cartTotals(c),on:c===cur && !specialActive(act),name:c.name||"이름 없음"}));
+  sidePools().forEach(p=>{ const t = cartTotals(p.c); if(t.q || act===p.kind) crows.push({t,on:act===p.kind,name:p.c.name}); });
   $("curList").innerHTML = crows.map(r=>`<div class="currow${r.on?" act":""}"><span>${esc(r.name)} · ${r.t.q}개</span><b>${won(r.t.sum)}</b></div>`).join("");
-  $("giftLine").innerHTML = `<b>${esc(EV.giftTitle||"구매 특전")}</b> · ${esc(giftText(allGifts().g))}`;
-  const multi = state.carts.length>1 || ldNow.q>0;
-  const all = [...state.carts, state.ld].reduce((a,c)=>{const t=cartTotals(c);return {q:a.q+t.q,sum:a.sum+t.sum};},{q:0,sum:0});
+  $("giftLine").innerHTML = `<b>${esc(EV.giftTitle||"구매 특전")}</b> · ${esc(giftText(allGifts().g))}` +
+    (hasCafe(EV) ? `<br><b>${esc(EV.cafeGiftTitle||"메뉴 증정품")}</b> · ${esc(cafeGiftText())}` : "");
+  const multi = state.carts.length>1 || sidePools().some(p=>cartTotals(p.c).q>0);
+  const all = poolTotals();
   $("tot").textContent = won(all.sum);
   $("cnt").textContent = multi ? `전체 합계 · ${all.q}개` : `${all.q}개 담음`;
   const r = $("receipt");
   if(!all.q){ r.innerHTML = `<div class="empty">담은 굿즈가 없어요.</div>`; return; }
   let rows = "";
-  const addCart = (c,isLdCart)=>{
+  const addCart = (c,kind)=>{
     const ls = cartLines(c); if(!ls.length) return;
     const t = cartTotals(c);
     if(multi) rows += `<tr class="ch"><td colspan="2">${esc(c.name||"이름 없음")}</td><td>${won(t.sum)}</td></tr>`;
@@ -1250,10 +1323,11 @@ function updateBar(){
       rows += `<tr class="cat"><td colspan="2">${esc(g.cat)} · ${g.q}개</td><td>${won(g.sum)}</td></tr>`;
       rows += g.lines.map(l=>`<tr><td>${esc(l.name)}<br><span style="opacity:.6;font-size:11.5px">${won(l.unit)}</span></td><td>×${l.q}</td><td>${won(l.sum)}</td></tr>`).join("");
     });
-    if(!isLdCart && !EV.combineCarts) rows += `<tr class="gr"><td colspan="3">특전: ${giftText(benefits(c).g)}</td></tr>`;
+    if(kind==="md" && !EV.combineCarts) rows += `<tr class="gr"><td colspan="3">특전: ${giftText(benefits(c).g)}</td></tr>`;
+    if(kind==="cafe") rows += `<tr class="gr"><td colspan="3">증정품: ${cafeGiftText()}</td></tr>`;
   };
-  state.carts.forEach(c=>addCart(c,false));
-  addCart(state.ld,true);
+  state.carts.forEach(c=>addCart(c,"md"));
+  sidePools().forEach(p=>addCart(p.c,p.kind));
   if(state.carts.length>1 || EV.combineCarts) rows += `<tr class="ch"><td colspan="3">전체 특전: ${giftText(allGifts().g)}</td></tr>`;
   r.innerHTML = `<table>${rows}</table>`;
 }
@@ -1272,9 +1346,10 @@ $("btnGuide").onclick = ()=>{
 };
 function saveImage(){
   const groups = [];
-  [...state.carts.map(c=>({c,ld:false})), {c:state.ld,ld:true}].forEach(x=>{
+  [...state.carts.map(c=>({c,kind:"md"})), ...sidePools()].forEach(x=>{
     const ls = cartLines(x.c); if(!ls.length) return;
-    groups.push({name:x.c.name||"이름 없음",ld:x.ld,t:cartTotals(x.c),cats:groupByCat(ls),gift:(x.ld||EV.combineCarts)?"":giftText(benefits(x.c).g)});
+    const gift = x.kind==="cafe" ? cafeGiftText() : (x.kind==="ld" || EV.combineCarts) ? "" : giftText(benefits(x.c).g);
+    groups.push({name:x.c.name||"이름 없음",ld:x.kind==="ld",t:cartTotals(x.c),cats:groupByCat(ls),gift});
   });
   if(!groups.length){ toast("저장할 내역이 없어요"); return; }
   const multi = groups.length>1;
@@ -1297,7 +1372,7 @@ function saveImage(){
   const fit = (txt,max)=>{ if(x.measureText(txt).width<=max) return txt; let t=txt; while(t.length>1 && x.measureText(t+"…").width>max) t=t.slice(0,-1); return t+"…"; };
   const L = P, R = W-P;
   let y = P;
-  const all = [...state.carts, state.ld].reduce((a,c)=>{const t=cartTotals(c);return {q:a.q+t.q,sum:a.sum+t.sum};},{q:0,sum:0});
+  const all = poolTotals();
   rows.forEach(r=>{
     const h = H[r.t];
     if(r.t==="title"){
@@ -1444,7 +1519,11 @@ function toast(msg){
   t.textContent = msg; t.classList.add("show");
   clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show"),2000);
 }
-$("ldTab").onclick = ()=>{ state.active = "ld"; delArmed = false; save(); render(); };
+const goTab = a => { if(!specialActive(state.active)) state.lastMd = state.active; state.active = a; delArmed = false; save(); render(); };
+$("ldTab").onclick = ()=>goTab("ld");
+$("cafeTab").onclick = ()=>goTab("cafe");
+$("evTab").onclick = ()=>goTab("ev");
+$("mdTab").onclick = ()=>{ if(specialActive(state.active)) goTab(state.carts.some(c=>c.id===state.lastMd) ? state.lastMd : state.carts[0].id); };
 $("cname").addEventListener("input", e=>{ cart().name = e.target.value; save(); renderTabs(); updateBar(); });
 $("btnDel").onclick = ()=>{
   if(state.carts.length<=1) return;
@@ -1460,20 +1539,20 @@ $("btnList").onclick = e=>{
 $("btnImg").onclick = saveImage;
 $("btnCopy").onclick = async ()=>{
   const all = state.carts.filter(c=>cartLines(c).length);
-  const ldLs = cartLines(state.ld);
-  if(!all.length && !ldLs.length){ toast("복사할 내역이 없어요"); return; }
-  const multi = state.carts.length>1 || ldLs.length>0;
+  const sides = sidePools().filter(p=>cartLines(p.c).length);
+  if(!all.length && !sides.length){ toast("복사할 내역이 없어요"); return; }
+  const multi = state.carts.length>1 || sides.length>0;
   const blocks = all.map(c=>{
     const ls = cartLines(c), t = cartTotals(c);
     const body = ls.map(l=>`${l.label} ×${l.q} = ${won(l.sum)}`).join("\n");
     return (multi ? `■ ${c.name} (${won(t.sum)})\n` : "") + body + (EV.combineCarts ? "" : "\n" + `→ 특전: ${giftText(benefits(c).g)}`);
   });
-  if(ldLs.length){
-    const t = cartTotals(state.ld);
-    blocks.push(`■ ${state.ld.name} (${won(t.sum)})\n` + ldLs.map(l=>`${l.label} ×${l.q} = ${won(l.sum)}`).join("\n"));
-  }
+  sides.forEach(p=>{
+    const t = cartTotals(p.c);
+    blocks.push(`■ ${p.c.name} (${won(t.sum)})\n` + cartLines(p.c).map(l=>`${l.label} ×${l.q} = ${won(l.sum)}`).join("\n") + (p.kind==="cafe" ? `\n→ 증정품: ${cafeGiftText()}` : ""));
+  });
   let text = blocks.join("\n\n");
-  const g = [...state.carts, state.ld].reduce((a,c)=>{const t=cartTotals(c);return {q:a.q+t.q,sum:a.sum+t.sum};},{q:0,sum:0});
+  const g = poolTotals();
   text += `\n\n총 ${g.q}개 / ${won(g.sum)}`;
   if(state.carts.length>1 || EV.combineCarts) text += `\n전체 특전: ${giftText(allGifts().g)}`;
   try { await navigator.clipboard.writeText(text); toast("내역을 복사했어요"); }
@@ -1485,7 +1564,7 @@ $("btnCopy").onclick = async ()=>{
 };
 const btnReset = $("btnReset");
 btnReset.onclick = ()=>{
-  const any = state.carts.some(c=>Object.keys(c.qty).length) || Object.keys(state.ld.qty).length>0;
+  const any = allPools(state).some(c=>Object.keys(c.qty).length);
   if(!any && state.carts.length===1) return;
   if(!resetArmed){
     resetArmed = true; btnReset.textContent = "정말 초기화?"; btnReset.classList.add("warn");
@@ -1509,16 +1588,16 @@ $("btnBack").onclick = ()=>go(null);
 /* ======================= 홈 / 라우팅 ======================= */
 function summaryOf(ev){
   const s = loadState(ev);
-  const t = [...s.carts, s.ld].reduce((a,c)=>{const x=cartTotals(c,ev.items);return {q:a.q+x.q,sum:a.sum+x.sum};},{q:0,sum:0});
+  const t = allPools(s).reduce((a,c)=>{const x=cartTotals(c,ev.items);return {q:a.q+x.q,sum:a.sum+x.sum};},{q:0,sum:0});
   return t;
 }
 function listN(ev){
   const s = loadState(ev);
-  return [...s.carts, s.ld].filter(c=>cartTotals(c,ev.items).q>0).length;
+  return allPools(s).filter(c=>cartTotals(c,ev.items).q>0).length;
 }
 function totalsOf(ev){
   const s = loadState(ev);
-  return [...s.carts, s.ld].reduce((a,c)=>{ const t = cartTotals(c,ev.items); return {q:a.q+t.q, sum:a.sum+t.sum}; },{q:0,sum:0});
+  return allPools(s).reduce((a,c)=>{ const t = cartTotals(c,ev.items); return {q:a.q+t.q, sum:a.sum+t.sum}; },{q:0,sum:0});
 }
 function renderHome(){
   const g = $("evgrid"); g.innerHTML = "";
