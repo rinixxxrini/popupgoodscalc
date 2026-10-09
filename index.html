@@ -787,7 +787,7 @@ const SG_ITEMS = [
 ];
 const EVENTS = [{
   id:"sp",
-  kw:"신품방 판타지트 fantazit",
+  kw:"신을 품는 방법 신품법 판타지트 fantazit",
   rsv:true,
   title:"신을 품는 방법 × 판타지트",
   cardSub:"판타지트 (마포구 월드컵로 10길) · 첫 번째 생일잔치",
@@ -911,7 +911,7 @@ const EVENTS = [{
   guides:SH_GUIDES
 },{
   id:"ws",
-  kw:"웻샌드 wetsand mofun 모펀",
+  kw:"웻샌드 wet sand wetsand mofun 모펀",
   rsv:true,
   title:"Wet Sand × MOFUN",
   cardSub:"모펀 카페 AK PLAZA 홍대",
@@ -965,7 +965,7 @@ const EVENTS = [{
   guides:WS_GUIDES
 },{
   id:"usl",
-  kw:"언슬립 레봄 lebom",
+  kw:"언슬립 unsleep 레봄 lebom",
   title:"언슬립 A+ #after class",
   cardSub:"카페 레봄 (성수) · 토·일만 운영",
   sub:"카페 레봄 · 토·일만 운영",
@@ -1010,7 +1010,7 @@ const EVENTS = [{
   guides:USL_GUIDES
 },{
   id:"jinx",
-  kw:"징크스",
+  kw:"징크스 jinx",
   title:"JINX POP-UP",
   cardSub:"서울 성동구 연무장 11길 7",
   place:"서울 성동구 연무장 11길 7",
@@ -1145,7 +1145,7 @@ const EVENTS = [{
   guides:KD_GUIDES.cafe
 },{
   id:"lap",
-  kw:"러브올플레이 모펀",
+  kw:"러브 올 플레이 럽올 love all play 모펀 mofun",
   rsv:true,
   title:"Love All Play × MOFUN",
   cardSub:"모펀 콜라보 카페 서교점",
@@ -1201,7 +1201,7 @@ const EVENTS = [{
   guides:LAP_GUIDES
 },{
   id:"sg",
-  kw:"시금치 모펀 아이파크몰 용산",
+  kw:"시금치 꽃다발 시꽃 모펀 mofun 아이파크몰 용산",
   title:"시금치 꽃다발 × 모펀",
   cardSub:"모펀 스토어 아이파크몰 용산점",
   sub:"모펀 스토어 아이파크몰 용산점",
@@ -1250,7 +1250,7 @@ const EVENTS = [{
   guides:SG_GUIDES
 },{
   id:"mtg",
-  kw:"마인드더갭 투니크 toonique",
+  kw:"마인드 더 갭 마더갭 mind the gap 투니크 toonique",
   rsv:true,
   title:"Mind the Gap × Toonique",
   cardSub:"카페 투니크 홍대점",
@@ -1310,7 +1310,7 @@ const EVENTS = [{
   guides:MTG_GUIDES
 },{
   id:"bv",
-  kw:"부토니에르 패션",
+  kw:"패션 passion 부토니에의 서약 부토니에르",
   hasLd:true,
   title:"Boutonnière's Vow",
   cardSub:"SPACE BE 연남",
@@ -1347,7 +1347,7 @@ const EVENTS = [{
 }];
 
 const GROUPS = {
-  kdl:{kw:"키스 미 이프 유 캔 디자이어 랜드 굿즈모먼트 goodsmoment",title:"Kiss × Desire Land",sub:"굿즈모먼트 2F · 4F",dates:"2026.10.8(목) - 2026.11.1(일)",cover:KD_COVER,parts:["kdl-pop","kdl-cafe"],entry:"kdl-pop"}
+  kdl:{kw:"키스 미 이프 유 캔 디자이어 미 이프 유 캔 키이프 디이프 kiss me if you can desire me if you can 키스 디자이어 랜드 굿즈모먼트 goodsmoment",title:"Kiss × Desire Land",sub:"굿즈모먼트 2F · 4F",dates:"2026.10.8(목) - 2026.11.1(일)",cover:KD_COVER,parts:["kdl-pop","kdl-cafe"],entry:"kdl-pop"}
 };
 const HOME = [{ev:"sp"},{ev:"usl"},{ev:"ws"},{ev:"jinx"},{group:"kdl"},{ev:"lap"},{ev:"sg"},{ev:"mtg"},{ev:"bv"},{ev:"sh"}];
 
@@ -2208,7 +2208,8 @@ function renderHome(){
   const rank = {live:0, soon:1, ended:2};
   cards.forEach((c,i)=>c.i=i);
   cards.sort((x,y)=> rank[x.status]-rank[y.status] || (x.status==="soon" ? x.start-y.start : x.status==="ended" ? y.end-x.end : x.i-y.i));
-  const q = normQ(homeQ), hit = c => !q || q.split(" ").every(w=>c.kw.includes(w));
+  const q = normQ(homeQ), qc = q.replace(/ /g,"");
+  const hit = c => !q || q.split(" ").every(w=>c.kw.includes(w)) || c.kw.replace(/ /g,"").includes(qc);
   const found = cards.filter(hit);
   const cnt = {all:found.length, live:0, soon:0, ended:0}; found.forEach(c=>cnt[c.status]++);
   const labels = {all:"전체", live:"운영 중", soon:"운영 예정", ended:"운영 종료"};
