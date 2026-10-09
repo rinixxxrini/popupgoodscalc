@@ -297,14 +297,16 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .menucard .step .qin{width:38px;height:30px}
 
 /* ---- 구분 탭: MD 구매 | 럭키 드로우 | 카페 음료 | 이벤트 ---- */
-.sectabs{display:flex;border-bottom:1px solid var(--line);margin:0 0 10px;overflow-x:auto;scrollbar-width:none}
+.sectabs{display:flex;border-bottom:1px solid var(--line);margin:0 0 10px;touch-action:pan-y}
 .sectabs::-webkit-scrollbar{display:none}
-.stab{flex:1 1 0;min-width:max-content;display:flex;align-items:center;justify-content:center;gap:5px;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:600;padding:10px 8px;white-space:nowrap;cursor:pointer}
+.stab{flex:1 1 0;min-width:0;display:flex;align-items:center;justify-content:center;gap:5px;border:0;border-bottom:2px solid transparent;margin-bottom:-1px;background:transparent;color:var(--muted);font:inherit;font-size:14px;font-weight:600;padding:10px 8px;white-space:nowrap;cursor:pointer}
 .stab .tc{font-size:11px;background:var(--chip);color:var(--muted);padding:0 6px;border-radius:999px;min-width:18px;text-align:center;font-weight:600}
 .stab[aria-pressed="true"]{color:var(--wine);border-bottom-color:var(--wine)}
 .stab[aria-pressed="true"] .tc{background:var(--wine-soft);color:var(--wine)}
 .stab:focus-visible{outline:2px solid var(--wine);outline-offset:-2px}
-@media (max-width:420px){.stab{font-size:13px;padding:10px 6px}}
+@media (max-width:420px){.stab{font-size:13px;padding:10px 4px}}
+/* 탭이 화면보다 넓어지면 이름과 개수를 위아래로 놓아 한 화면에 고정해요 (가로로 밀리지 않게) */
+.sectabs.many .stab{flex-direction:column;gap:3px;white-space:normal;word-break:keep-all;line-height:1.2;text-align:center;font-size:12.5px;padding:8px 2px}
 
 /* ---- 상단 증정품 요약 · 하단 계산 접기 · 해시태그 복사 ---- */
 .hint{margin:-2px 0 12px}
@@ -1659,6 +1661,12 @@ function renderComplete(){
 }
 
 /* ======================= 탭 / 목록 ======================= */
+function fitSecTabs(){
+  const st = $("secTabs"); if(st.hidden || !st.offsetWidth) return;
+  st.classList.remove("many");
+  if([...st.children].some(t=>!t.hidden && t.scrollWidth > t.clientWidth + 1)) st.classList.add("many");
+}
+window.addEventListener("resize", fitSecTabs);
 function renderLdTab(){
   const b = $("ldTab");
   const n = Object.values(state.ld.qty).reduce((s,q)=>s+q,0);
@@ -1676,6 +1684,7 @@ function renderLdTab(){
   mb.setAttribute("aria-pressed", !specialActive(state.active));
   mb.innerHTML = `MD 구매<span class="tc">${state.carts.reduce((a,c)=>a+cartTotals(c).q,0)}</span>`;
   $("secTabs").hidden = !(EV.hasLd || hasCafe(EV) || EV.complete);
+  fitSecTabs(); requestAnimationFrame(fitSecTabs);
   const eb = $("evTab");
   eb.hidden = !EV.complete;
   if(EV.complete){
