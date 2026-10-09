@@ -1777,17 +1777,18 @@ function varBox(it,v,cur,menuLabel){
     </span></div>
     <div class="meta">${meta}</div>`;
   const [minus, plus] = box.querySelectorAll("button");
-  minus.onclick = () => change(it,v,-1);
-  plus.onclick = () => change(it,v,1);
+  minus.onclick = () => change(it,v,-1,box.closest(".item"));
+  plus.onclick = () => change(it,v,1,box.closest(".item"));
   const inp = box.querySelector(".qin");
   inp.onfocus = () => inp.select();
   inp.onkeydown = e => { if(e.key==="Enter") inp.blur(); };
-  inp.onchange = () => setQty(it,v,inp.value);
+  inp.onchange = () => setQty(it,v,inp.value,box.closest(".item"));
   return box;
 }
 function buildMenuCard(menu,cur,m){
   const el = document.createElement("div");
   el.className = "item menucard" + (menu.some(it=>itemInCart(it,cur)) ? " on" : "");
+  if(m) el.dataset.menu = m.cat;
   const n = menu.reduce((a,it)=>a+(it.vars||[null]).reduce((s,v)=>s+(cur.qty[key(it,v)]||0),0),0);
   const title = m ? m.cat : EV.menuCat, boards = m ? m.boards : [EV.menuBoard];
   el.innerHTML = `<div class="mchead"><b>${esc(title)}</b><span>${menu.length}종${n?` · ${n}개 담음`:""}</span></div>` +
@@ -1804,6 +1805,7 @@ function buildMenuCard(menu,cur,m){
 function buildItem(it,cur){
   const el = document.createElement("div");
   el.className = "item" + (itemInCart(it,cur) ? " on" : "");
+  el.dataset.no = it.no;
   const priceHtml = it.orig ? `<s>${won(it.orig)}</s>${won(it.price)}` : (it.vars ? "각 " : "") + won(it.price);
   el.innerHTML = `
     <div class="head">
@@ -1817,7 +1819,7 @@ function buildItem(it,cur){
       <div class="tags">${it.preorder ? `<span class="limit">예약 판매</span>` : ""}${EV.rsv && !it.preorder && !isCafeItem(it) && !it.noBenefit && !specialActive(state.active) ? `<label class="rsv${cur.rsv && cur.rsv[it.no] ? " on" : ""}"><input type="checkbox" data-rsv="${it.no}"${cur.rsv && cur.rsv[it.no] ? " checked" : ""}>예약</label>` : ""}${it.limit?`<span class="limit">${limitLabel(it)}</span>`:""}${it.noBenefit?`<span class="limit ex">특전 금액 제외</span>`:""}</div>
     </div>`;
   const rb = el.querySelector("[data-rsv]");
-  if(rb) rb.onchange = ()=>{ cur.rsv = cur.rsv || {}; if(rb.checked) cur.rsv[it.no] = true; else delete cur.rsv[it.no]; save(); render(); };
+  if(rb) rb.onchange = ()=>{ cur.rsv = cur.rsv || {}; if(rb.checked) cur.rsv[it.no] = true; else delete cur.rsv[it.no]; rb.parentElement.classList.toggle("on", rb.checked); save(); refresh(el); };
   if(EV.imgs[it.no]){
     const pic = document.createElement("div");
     pic.className = "pic";
@@ -1830,10 +1832,10 @@ function buildItem(it,cur){
   el.appendChild(vars);
   return el;
 }
-function setQty(it,v,raw){
+function setQty(it,v,raw,anchor){
   const c = cart(), k = key(it,v), q = c.qty[k]||0;
   const digits = String(raw).replace(/[０-９]/g,ch=>String.fromCharCode(ch.charCodeAt(0)-0xFEE0)).replace(/[^0-9]/g,"");
-  if(digits===""){ render(); return; }
+  if(digits===""){ refresh(anchor); return; }
   let n = parseInt(digits.slice(0,4),10);
   const cap = q + Math.max(0, maxFor(it) - usedAll(it,v));
   if(n>cap){
@@ -1841,16 +1843,39 @@ function setQty(it,v,raw){
     toast(it.limit ? `${it.name}: ${limitLabel(it)}까지 (모든 장바구니 합산)` : `한 번에 최대 ${SOFT_MAX}개까지 담을 수 있어요`);
   }
   if(n===0) delete c.qty[k]; else c.qty[k] = n;
-  save(); render();
+  save(); refresh(anchor);
 }
-function change(it,v,d){
+function change(it,v,d,anchor){
   const c = cart(), k = key(it,v);
   const q = c.qty[k]||0;
   if(d>0 && usedAll(it,v) >= maxFor(it)){ toast(`${it.name}: ${limitLabel(it)}까지 (모든 장바구니 합산)`); return; }
   const next = Math.max(0, q+d);
   if(next===0) delete c.qty[k]; else c.qty[k] = next;
   if(d>0 && it.limit && usedAll(it,v)>=it.limit) toast(`${it.name}${v?` [${v}]`:""}: 합산 최대 수량이에요`);
-  save(); render();
+  save(); refresh(anchor);
+}
+// 수량만 바뀔 때는 목록을 새로 그리지 않고 수량 칸만 바꿔요. (전체를 다시 그리면 이미지가 다시 로드되면서 화면이 밀려요)
+// 위쪽 특전 영역 높이가 바뀌어도 누른 굿즈가 화면에서 같은 자리에 있도록 스크롤을 보정해요.
+function refresh(anchor){
+  if(filter==="picked" && !specialActive(state.active)){ render(); return; }
+  const top = anchor && anchor.isConnected ? anchor.getBoundingClientRect().top : null;
+  const cur = cart();
+  renderTabs();
+  $("list").querySelectorAll(".item[data-no]").forEach(el=>{
+    const it = ITEMS.find(i=>String(i.no)===el.dataset.no); if(!it) return;
+    el.classList.toggle("on", itemInCart(it,cur));
+    const vars = el.querySelector(".vars"); if(vars) vars.replaceChildren(...(it.vars||[null]).map(v=>varBox(it,v,cur)));
+  });
+  $("list").querySelectorAll(".menucard").forEach(el=>{
+    const menu = ITEMS.filter(it=>isCafeItem(it) && (!el.dataset.menu || it.cat===el.dataset.menu)).sort((x,y)=>x.no-y.no);
+    el.classList.toggle("on", menu.some(it=>itemInCart(it,cur)));
+    const n = menu.reduce((a,it)=>a+(it.vars||[null]).reduce((s,v)=>s+(cur.qty[key(it,v)]||0),0),0);
+    const hd = el.querySelector(".mchead span"); if(hd) hd.textContent = `${menu.length}종${n?` · ${n}개 담음`:""}`;
+    const g = el.querySelector(".mvars");
+    if(g) g.replaceChildren(...menu.flatMap(it=>(it.vars||[null]).map(v=>varBox(it,v,cur,`<span class="mn">${esc(it.name)}${v?` (${esc(v)})`:""}</span><span class="mp">${won(it.price)}</span>`))));
+  });
+  updateBar();
+  if(top!==null && anchor.isConnected){ const d = anchor.getBoundingClientRect().top - top; if(Math.abs(d)>1) window.scrollBy(0,d); }
 }
 
 /* ======================= 하단 바 / 내역 ======================= */
