@@ -51,6 +51,13 @@ header p{margin:6px 0 0;color:var(--muted);font-size:14px}
 .cartedit{display:flex;gap:8px;margin-top:8px;align-items:center}
 .cartedit input{flex:1;min-width:0;font:inherit;font-size:14px;padding:6px 10px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);border-radius:3px}
 .cartedit button{flex:none;font:inherit;font-size:12.5px;padding:7px 10px;border:1px solid var(--line);background:var(--sheet);color:var(--muted);border-radius:3px;cursor:pointer}
+.prerow{display:flex;flex-wrap:wrap;gap:6px 8px;margin-top:8px;align-items:center;font-size:12.5px;color:var(--muted)}
+.prerow button{flex:none;font:inherit;font-size:12.5px;padding:6px 10px;border:1px solid var(--line);background:var(--sheet);color:var(--muted);border-radius:3px;cursor:pointer}
+.prerow button[aria-pressed="true"]{background:var(--wine);border-color:var(--wine);color:#fff}
+.prerow label{display:flex;align-items:center;gap:6px}
+.prerow input{font:inherit;font-size:13px;padding:4px 8px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);border-radius:3px}
+.tabs button .pb{font-size:10.5px;font-weight:600;padding:0 5px;border-radius:3px;border:1px solid currentColor;opacity:.85}
+.evpick{display:inline-block;margin-top:6px;font-size:11.5px;font-weight:600;color:var(--wine);border:1px solid var(--wine);border-radius:3px;padding:1px 6px}
 .cartedit button.warn{background:var(--wine);color:#fff;border-color:var(--wine)}
 .cartedit button:disabled{opacity:.4;cursor:default}
 .hint{font-size:12px;color:var(--muted);margin-top:6px}
@@ -382,6 +389,7 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
       <input id="cname" maxlength="14" aria-label="장바구니 이름" placeholder="장바구니 이름">
       <button type="button" id="btnDel">삭제</button>
     </div>
+    <div class="prerow" id="preRow"></div>
     <div class="giftmini" id="giftMini" aria-live="polite"></div>
   </div>
   <div class="hint" id="hint"></div>
@@ -1512,7 +1520,7 @@ function renderTabs(){
     const b = document.createElement("button");
     b.type = "button";
     b.setAttribute("aria-pressed", c.id===state.active);
-    b.innerHTML = `<span class="tn">${esc(c.name||"이름 없음")}</span><span class="tc">${cartTotals(c).q}</span>`;
+    b.innerHTML = `<span class="tn">${esc(c.name||"이름 없음")}</span>${c.pre ? `<span class="pb">${c.got ? "수령✓" : "예약"}</span>` : ""}<span class="tc">${cartTotals(c).q}</span>`;
     b.onclick = ()=>{ state.active = c.id; delArmed = false; save(); render(); };
     t.appendChild(b);
   });
@@ -1528,10 +1536,25 @@ function renderTabs(){
   }
   const inp = $("cname");
   if(document.activeElement!==inp) inp.value = cart().name || "";
+  renderPre();
   const del = $("btnDel");
   del.disabled = state.carts.length<=1;
   del.textContent = delArmed ? "정말 삭제?" : "삭제";
   del.className = delArmed ? "warn" : "";
+}
+const pickLabel = d => { const m = /^\d{4}-(\d{2})-(\d{2})$/.exec(d||""); return m ? `${+m[1]}/${+m[2]}` : ""; };
+const preLabel = c => !c.pre ? "" : c.got ? "예약 구매 · 수령 완료" : `예약 구매 · ${c.pickup ? pickLabel(c.pickup) + " " : ""}수령 대기`;
+function renderPre(){
+  const row = $("preRow"), c = cart();
+  if(specialActive(state.active)){ row.style.display = "none"; return; }
+  row.style.display = "";
+  if(row.dataset.cid===String(c.id) && document.activeElement && document.activeElement.tagName==="INPUT" && row.contains(document.activeElement)) return;
+  row.dataset.cid = c.id;
+  row.innerHTML = `<button type="button" data-p="pre" aria-pressed="${!!c.pre}">예약 구매</button>` + (c.pre
+    ? `<label>수령일 <input type="date" data-p="pickup" value="${esc(c.pickup||"")}"></label><button type="button" data-p="got" aria-pressed="${!!c.got}">${c.got ? "수령 완료 ✓" : "수령 완료"}</button>`
+    : `<span>예약 구매로 바뀌면 눌러서 수령할 영수증을 표시해 두세요.</span>`);
+  row.querySelectorAll("button").forEach(b=>b.onclick = ()=>{ const k = b.dataset.p; c[k] = !c[k]; if(k==="pre" && !c.pre){ c.got = false; } save(); render(); });
+  const d = row.querySelector("input"); if(d) d.onchange = ()=>{ c.pickup = d.value; save(); render(); };
 }
 function renderCatRow(){
   const row = $("catRow");
@@ -1721,7 +1744,7 @@ function updateBar(){
   const addCart = (c,kind)=>{
     const ls = cartLines(c); if(!ls.length) return;
     const t = cartTotals(c);
-    if(multi) rows += `<tr class="ch"><td colspan="2">${esc(c.name||"이름 없음")}</td><td>${won(t.sum)}</td></tr>`;
+    if(multi || c.pre) rows += `<tr class="ch"><td colspan="2">${esc(c.name||"이름 없음")}${c.pre ? `<br><span style="opacity:.7;font-size:11.5px;font-weight:500">${esc(preLabel(c))}</span>` : ""}</td><td>${won(t.sum)}</td></tr>`;
     groupByCat(ls).forEach(g=>{
       rows += `<tr class="cat"><td colspan="2">${esc(g.cat)} · ${g.q}개</td><td>${won(g.sum)}</td></tr>`;
       rows += g.lines.map(l=>`<tr><td>${esc(l.name)}<br><span style="opacity:.6;font-size:11.5px">${won(l.unit)}</span></td><td>×${l.q}</td><td>${won(l.sum)}</td></tr>`).join("");
@@ -1752,13 +1775,13 @@ function saveImage(){
   [...state.carts.map(c=>({c,kind:"md"})), ...sidePools()].forEach(x=>{
     const ls = cartLines(x.c); if(!ls.length) return;
     const gift = x.kind==="cafe" ? cafeGiftText() : (x.kind==="ld" || EV.combineCarts) ? "" : giftText(benefits(x.c).g);
-    groups.push({name:x.c.name||"이름 없음",ld:x.kind==="ld",t:cartTotals(x.c),cats:groupByCat(ls),gift});
+    groups.push({name:(x.c.name||"이름 없음") + (x.c.pre ? ` · ${preLabel(x.c)}` : ""),ld:x.kind==="ld",pre:!!x.c.pre,t:cartTotals(x.c),cats:groupByCat(ls),gift});
   });
   if(!groups.length){ toast("저장할 내역이 없어요"); return; }
   const multi = groups.length>1;
   const rows = [{t:"title"}];
   groups.forEach(g=>{
-    if(multi) rows.push({t:"cart",g});
+    if(multi || g.pre) rows.push({t:"cart",g});
     g.cats.forEach(ct=>{ rows.push({t:"cat",ct}); ct.lines.forEach(l=>rows.push({t:"line",l})); });
     if(!g.ld && g.gift) rows.push({t:"gift",g});
   });
@@ -1957,7 +1980,7 @@ $("btnCopy").onclick = async ()=>{
   const blocks = all.map(c=>{
     const ls = cartLines(c), t = cartTotals(c);
     const body = ls.map(l=>`${l.label} ×${l.q} = ${won(l.sum)}`).join("\n");
-    return (multi ? `■ ${c.name} (${won(t.sum)})\n` : "") + body + (EV.combineCarts ? "" : "\n" + `→ 특전: ${giftText(benefits(c).g)}`);
+    return (multi || c.pre ? `■ ${c.name} (${won(t.sum)})${c.pre ? ` [${preLabel(c)}]` : ""}\n` : "") + body + (EV.combineCarts ? "" : "\n" + `→ 특전: ${giftText(benefits(c).g)}`);
   });
   sides.forEach(p=>{
     const t = cartTotals(p.c);
@@ -2033,8 +2056,10 @@ function renderHome(){
       count = ev.items.length;
       const tt = totalsOf(ev); n = tt.q; sum = tt.sum;
     }
+    const pend = (h.group ? GROUPS[h.group].parts.map(id=>EVENTS.find(e=>e.id===id)) : [EVENTS.find(e=>e.id===h.ev)])
+      .reduce((a,e)=>a+loadState(e).carts.filter(c=>c.pre && !c.got && cartTotals(c,e.items).q>0).length,0);
     const st = evStatus(dates), r = dateRange(dates) || {start:0,end:0};
-    return {title,sub,dates,cover,count,n,sum,target,status:st,start:r.start,end:r.end,ended:st==="ended"};
+    return {title,sub,dates,cover,count,n,sum,pend,target,status:st,start:r.start,end:r.end,ended:st==="ended"};
   });
   // 운영 중 → 운영 예정(시작 빠른 순) → 운영 종료(최근에 끝난 순, 먼저 끝난 행사가 맨 뒤)
   const rank = {live:0, soon:1, ended:2};
@@ -2057,7 +2082,7 @@ function renderHome(){
       ${c.sub ? `<div class="evdate">${esc(c.sub)}</div>` : ""}
       ${c.dates ? `<div class="evdate">${esc(c.dates)}</div>` : ""}
       <div class="evmeta"><span>${c.count}종</span><span>내 리스트 <b>${c.n}개</b></span></div>
-      <div class="evsum${c.sum?" on":""}">담은 금액 <b>${won(c.sum)}</b></div></div>`;
+      <div class="evsum${c.sum?" on":""}">담은 금액 <b>${won(c.sum)}</b></div>${c.pend ? `<span class="evpick">수령 대기 ${c.pend}건</span>` : ""}</div>`;
     b.onclick = ()=>go(c.target);
     g.appendChild(b);
   });
