@@ -181,7 +181,13 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .evinfo{display:flex;flex-direction:column;flex:1}
 .evname{min-height:2.6em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .evdate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.evmeta{margin-top:auto !important;padding-top:10px}
+.evmeta{margin-top:auto !important;padding-top:10px;flex-wrap:wrap;row-gap:2px}
+.evsum{margin-top:4px;font-size:13px;color:var(--hmuted);line-height:1.4;word-break:keep-all}
+.evsum b{font-weight:600}
+.evsum.on{color:var(--ink)}
+.evsum.on b{color:var(--wine);font-weight:700}
+.giftline{font-size:12.5px;color:#ffd9dc;margin:-2px 0 8px;line-height:1.5}
+.giftline b{font-weight:600;color:#fff}
 .evcard.ended{opacity:.78}
 .evcard.ended .evcover img{filter:grayscale(1) brightness(.92)}
 .evcard.ended .evname,.evcard.ended .evdate,.evcard.ended .evmeta{color:var(--hmuted)}
@@ -288,6 +294,7 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
   <div class="bar-in">
     <div class="receipt" id="receipt"></div>
     <div class="curlist" id="curList"></div>
+    <div class="giftline" id="giftLine"></div>
     <div class="sum">
       <span class="cnt" id="cnt">전체 0개</span>
       <span class="tot" id="tot">0원</span>
@@ -1166,6 +1173,7 @@ function updateBar(){
   const crows = state.carts.map(c=>({t:cartTotals(c),on:c===cur,name:c.name||"이름 없음"}));
   if(ldNow.q || isLd) crows.push({t:ldNow,on:isLd,name:state.ld.name});
   $("curList").innerHTML = crows.map(r=>`<div class="currow${r.on?" act":""}"><span>${esc(r.name)} · ${r.t.q}개</span><b>${won(r.t.sum)}</b></div>`).join("");
+  $("giftLine").innerHTML = `<b>${esc(EV.giftTitle||"구매 특전")}</b> · ${esc(giftText(allGifts().g))}`;
   const multi = state.carts.length>1 || ldNow.q>0;
   const all = [...state.carts, state.ld].reduce((a,c)=>{const t=cartTotals(c);return {q:a.q+t.q,sum:a.sum+t.sum};},{q:0,sum:0});
   $("tot").textContent = won(all.sum);
@@ -1354,20 +1362,26 @@ function listN(ev){
   const s = loadState(ev);
   return [...s.carts, s.ld].filter(c=>cartTotals(c,ev.items).q>0).length;
 }
+function totalsOf(ev){
+  const s = loadState(ev);
+  return [...s.carts, s.ld].reduce((a,c)=>{ const t = cartTotals(c,ev.items); return {q:a.q+t.q, sum:a.sum+t.sum}; },{q:0,sum:0});
+}
 function renderHome(){
   const g = $("evgrid"); g.innerHTML = "";
   const cards = HOME.map(h=>{
-    let title, sub = "", dates, cover, count, n, target;
+    let title, sub = "", dates, cover, count, n, sum, target;
     if(h.group){
       const G = GROUPS[h.group], evs = G.parts.map(id=>EVENTS.find(e=>e.id===id));
       title = G.title; sub = G.sub; dates = G.dates; cover = G.cover; target = G.entry;
-      count = evs.reduce((a,e)=>a+e.items.length,0); n = evs.reduce((a,e)=>a+listN(e),0);
+      count = evs.reduce((a,e)=>a+e.items.length,0);
+      const tt = evs.map(totalsOf); n = tt.reduce((a,x)=>a+x.q,0); sum = tt.reduce((a,x)=>a+x.sum,0);
     } else {
       const ev = EVENTS.find(e=>e.id===h.ev);
       title = ev.title; sub = ev.cardSub || ""; dates = ev.dates; cover = ev.cover; target = ev.id;
-      count = ev.items.length; n = listN(ev);
+      count = ev.items.length;
+      const tt = totalsOf(ev); n = tt.q; sum = tt.sum;
     }
-    return {title,sub,dates,cover,count,n,target,ended:isEnded(dates)};
+    return {title,sub,dates,cover,count,n,sum,target,ended:isEnded(dates)};
   });
   cards.sort((x,y)=>(x.ended?1:0)-(y.ended?1:0));
   cards.forEach(c=>{
@@ -1377,7 +1391,8 @@ function renderHome(){
       <div class="evinfo"><div class="evname">${esc(c.title)}</div>
       ${c.sub ? `<div class="evdate">${esc(c.sub)}</div>` : ""}
       ${c.dates ? `<div class="evdate">${esc(c.dates)}</div>` : ""}
-      <div class="evmeta"><span>${c.count}종</span><span>내 리스트 <b>${c.n}</b></span></div></div>`;
+      <div class="evmeta"><span>${c.count}종</span><span>내 리스트 <b>${c.n}개</b></span></div>
+      <div class="evsum${c.sum?" on":""}">담은 금액 <b>${won(c.sum)}</b></div></div>`;
     b.onclick = ()=>go(c.target);
     g.appendChild(b);
   });
