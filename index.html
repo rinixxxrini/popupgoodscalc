@@ -303,6 +303,26 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .tagbox .tags2{margin-top:6px;font-size:13.5px;line-height:1.7;color:var(--ink);word-break:keep-all;user-select:all;-webkit-user-select:all}
 .cbig{margin:10px 0 4px;background:#fff;border:1px solid var(--line);border-radius:4px;padding:6px}
 .cbig img{display:block;width:100%;height:auto;border-radius:2px}
+/* ---- 포토카드 도감 ---- */
+.coll{margin-top:12px;padding-top:12px;border-top:1px solid var(--line)}
+.coll .ch2{display:flex;align-items:baseline;justify-content:space-between;gap:8px}
+.coll .ch2 b{font-family:var(--serif);font-size:16px}
+.coll .ch2 span{font-size:13px;color:var(--muted)}
+.coll .ch2 em{font-style:normal;font-weight:700;font-size:16px;color:var(--wine)}
+.coll .ctip{font-size:12px;color:var(--muted);margin:8px 0}
+.cgrid{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px}
+@media (max-width:420px){.cgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.cslot{position:relative}
+.cadd{width:100%;display:flex;flex-direction:column;align-items:center;gap:1px;padding:10px 4px 8px;border:1px dashed var(--line);border-radius:6px;background:var(--sheet);color:var(--muted);font:inherit;font-size:20px;font-weight:700;font-variant-numeric:tabular-nums;cursor:pointer}
+.cadd small{font-size:11px;font-weight:500}
+.cslot.has .cadd{border:1px solid var(--wine);background:var(--wine-soft);color:var(--wine)}
+.cadd:focus-visible,.csub:focus-visible{outline:2px solid var(--wine);outline-offset:2px}
+.csub{position:absolute;top:-6px;right:-6px;width:24px;height:24px;border-radius:50%;border:1px solid var(--line);background:var(--sheet);color:var(--ink);font-size:15px;line-height:1;padding:0;cursor:pointer;display:grid;place-items:center}
+.clog{margin-top:12px;font-size:12.5px}
+.clog b{display:block;font-size:12.5px;color:var(--muted);margin-bottom:4px}
+.clog div{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line)}
+.clog div span:first-child{flex:none;color:var(--muted)}
+.clog div span:last-child{text-align:right}
 </style>
 </head>
 <body>
@@ -774,6 +794,7 @@ const EVENTS = [{
       {k:"e2",daily:true,img:"mini",name:"② 메뉴 주문 인증 · 미니 포토카드 1장 (랜덤)",cond:"콜라보 메뉴 주문 후 SNS에 필수 해시태그와 함께 사진 업로드 → 메뉴 구매 영수증을 가지고 모펀 스태프에게 인증"},
       {k:"e3",daily:true,img:"mini",name:"③ 상품 구매 인증 · 미니 포토카드 1장 (랜덤)",cond:"콜라보 상품 구매 후 SNS에 필수 해시태그와 함께 사진 업로드 → 상품 구매 영수증을 가지고 모펀 스태프에게 인증"}
     ],
+    collect:{n:9,title:"미니 포토카드 도감"},
     note:"필수 해시태그: #러브올플레이 #삼장법사 #모펀 #콜라보카페 · 미니 포토카드 9종 중 랜덤",
     notes:[
       "이벤트 기간 내 콜라보 상품 또는 메뉴 결제 영수증을 가지고 가면 인증할 수 있어요.",
@@ -881,6 +902,7 @@ const EVENTS = [{
       {k:"h2",daily:true,img:"pc",name:"② MD 구매 인증 게시글 (+1장)",cond:"<마인드 더 갭> MD 구매 인증 게시글을 필수 해시태그와 함께 작성"},
       {k:"h3",daily:true,img:"pc",name:"③ 메뉴 구매 인증 게시글 (+1장)",cond:"<마인드 더 갭> 메뉴 구매 인증 게시글을 필수 해시태그와 함께 작성"}
     ],
+    collect:{n:9,title:"일러스트 포토카드 도감"},
     note:"카운터에서 당일 게시글을 보여주면 포토카드를 랜덤으로 줘요. 필수 해시태그: #마인드더갭 #마더갭 #콜라보카페 #플로나 #조킬머 #청용 #씨엔씨레볼루션 #투니크",
     notes:[
       "당일 인증이 끝난 영수증은 같은 날 다시 쓸 수 없고, 재발행한 영수증으로는 어떤 경우에도 참여할 수 없어요.",
@@ -960,6 +982,9 @@ function loadState(ev){
   } catch(e){}
   if(!s || !Array.isArray(s.carts) || !s.carts.length) s = freshState();
   if(!s.done) s.done = {};
+  if(!s.coll || typeof s.coll!=="object") s.coll = {have:{}, log:{}};
+  if(!s.coll.have) s.coll.have = {};
+  if(!s.coll.log) s.coll.log = {};
   if(!s.ld) s.ld = {qty:{}};
   s.ld.name = ev.ldLabel || "럭키드로우";
   const ldItem = ev.items.find(i=>i.noBenefit);
@@ -1122,6 +1147,37 @@ async function copyText(text, okMsg){
     ta.remove();
   }
 }
+const dayLabel = d => { const [y,m,dd] = d.split("-").map(Number); return `${m}/${dd} (${"일월화수목금토"[new Date(y,m-1,dd).getDay()]})`; };
+function buildCollect(cf){
+  const co = state.coll, have = co.have;
+  const got = Array.from({length:cf.n},(_,i)=>i+1).filter(i=>have[i]>0).length;
+  const dup = Object.values(have).reduce((a,q)=>a+Math.max(0,q-1),0);
+  const box = document.createElement("div");
+  box.className = "coll";
+  const days = Object.keys(co.log).filter(d=>co.log[d].length).sort().reverse();
+  box.innerHTML = `<div class="ch2"><b>${esc(cf.title||"포토카드 도감")}</b><span><em>${got}</em>/${cf.n} 모음${dup?` · 중복 ${dup}장`:""}</span></div>
+    <span class="gbar"><i style="width:${(got/cf.n*100).toFixed(1)}%"></i></span>
+    <p class="ctip">받은 카드 번호를 누르면 오늘 기록에 1장 더해져요. 잘못 눌렀으면 −로 빼세요.</p>
+    <div class="cgrid">${Array.from({length:cf.n},(_,i)=>{ const k=i+1, q=have[k]||0;
+      return `<div class="cslot${q?" has":""}"><button type="button" class="cadd" data-k="${k}" aria-label="${k}번 카드 1장 추가">${k}<small>${q?(q>1?`×${q}`:"보유"):"미보유"}</small></button>${q?`<button type="button" class="csub" data-k="${k}" aria-label="${k}번 카드 1장 빼기">−</button>`:""}</div>`; }).join("")}</div>
+    ${days.length ? `<div class="clog"><b>받은 기록</b>${days.map(d=>`<div><span>${dayLabel(d)}${d===todayStr()?" · 오늘":""}</span><span>${co.log[d].slice().sort((a,b)=>a-b).map(k=>`${k}번`).join(", ")}</span></div>`).join("")}</div>` : ""}`;
+  box.querySelectorAll(".cadd").forEach(b=>b.onclick = ()=>{
+    const k = +b.dataset.k, t = todayStr();
+    have[k] = (have[k]||0) + 1;
+    (co.log[t] = co.log[t] || []).push(k);
+    save(); renderComplete(); renderLdTab();
+    toast(have[k]>1 ? `${k}번 · 중복 ${have[k]-1}장째예요` : `${k}번 카드를 모았어요`);
+  });
+  box.querySelectorAll(".csub").forEach(b=>b.onclick = ()=>{
+    const k = +b.dataset.k;
+    if(!have[k]) return;
+    have[k]--; if(!have[k]) delete have[k];
+    const d = Object.keys(co.log).sort().reverse().find(x=>co.log[x].includes(k));
+    if(d){ const a = co.log[d]; a.splice(a.lastIndexOf(k),1); if(!a.length) delete co.log[d]; }
+    save(); renderComplete();
+  });
+  return box;
+}
 function renderComplete(){
   const el = $("complete");
   if(!EV.complete){ el.innerHTML = ""; return; }
@@ -1136,6 +1192,7 @@ function renderComplete(){
     (C.note ? `<div class="gnote">${esc(C.note)}</div>` : "") +
     (tagsOf(C).length ? `<div class="tagbox"><div class="tl"><span>필수 해시태그 ${tagsOf(C).length}개</span><button type="button" id="btnTags">해시태그 복사</button></div><div class="tags2">${esc(tagsOf(C).join(" "))}</div></div>` : "") +
     (C.notes ? `<details class="gnote"><summary>이벤트 유의사항</summary><ul>${C.notes.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></details>` : "");
+  if(C.collect) el.appendChild(buildCollect(C.collect));
   const bt = $("btnTags");
   if(bt) bt.onclick = ()=>copyText(tagsOf(C).join(" "), "해시태그를 복사했어요");
   el.querySelectorAll("input[type=checkbox]").forEach(inp=>{
@@ -1652,7 +1709,8 @@ btnReset.onclick = ()=>{
     return;
   }
   const done = state.done;
-  state = freshState(); state.done = done;
+  const coll = state.coll;
+  state = freshState(); state.done = done; state.coll = coll;
   resetArmed = false; btnReset.textContent = "초기화"; btnReset.classList.remove("warn");
   save(); render(); toast("모두 초기화했어요");
 };
