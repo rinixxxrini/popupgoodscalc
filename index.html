@@ -1991,7 +1991,7 @@ function renderHome(){
 function showHome(){
   $("eventWrap").hidden = true; $("bar").hidden = true; $("homeWrap").hidden = false;
   document.body.classList.add("home");
-  document.title = "팝업 굿즈리스트";
+  document.title = "GOODS LIST";
   renderHome(); window.scrollTo(0,0);
 }
 function openEvent(id){
@@ -2013,7 +2013,7 @@ function openEvent(id){
       ps.appendChild(b);
     });
   } else { ps.hidden = true; ps.innerHTML = ""; }
-  document.title = EV.title + " · 팝업 굿즈리스트";
+  document.title = EV.title + " · GOODS LIST";
   $("homeWrap").hidden = true; $("eventWrap").hidden = false; $("bar").hidden = false;
   document.body.classList.remove("home");
   render(); window.scrollTo(0,0);
