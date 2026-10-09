@@ -169,7 +169,7 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .brand i{display:block;width:24px;height:24px;border-radius:7px;background:var(--wine);position:relative}
 .brand i::after{content:"";position:absolute;left:50%;top:50%;width:8px;height:8px;background:#fff;transform:translate(-50%,-50%) rotate(45deg)}
 .wrap.home{padding:22px 16px 48px}
-.homehead h1{font-family:var(--sans);font-weight:700;font-size:21px;letter-spacing:-.02em;margin:0;line-height:1.3}
+.homehead h1{font-family:var(--sans);font-weight:700;font-size:21px;letter-spacing:.01em;margin:0;line-height:1.3;word-break:keep-all}
 .homehead p{margin:3px 0 0;color:var(--hmuted);font-size:13.5px}
 .hometabs{margin-top:16px;flex-wrap:wrap}.hometabs b{font-weight:600;margin-left:2px;opacity:.7}.homeempty{grid-column:1/-1;color:var(--muted);padding:32px 0;text-align:center}
 .evgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
@@ -340,8 +340,7 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
   <div class="hometop"><div class="hometop-in"><span class="brand"><i></i>팝업 굿즈리스트</span></div></div>
   <div class="wrap home">
     <div class="homehead">
-      <h1>팝업 굿즈리스트</h1>
-      <p>어떤 행사를 정리할까요?</p>
+      <h1>BL COLLABORATION POP-UP &amp; CAFE LIST</h1>
     </div>
     <div class="filter hometabs" id="homeTabs" role="group" aria-label="운영 상태">
       <button type="button" data-s="all" aria-pressed="true">전체</button>
