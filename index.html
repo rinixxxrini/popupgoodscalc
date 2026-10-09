@@ -323,6 +323,13 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .clog div{display:flex;justify-content:space-between;gap:10px;padding:5px 0;border-top:1px solid var(--line)}
 .clog div span:first-child{flex:none;color:var(--muted)}
 .clog div span:last-child{text-align:right}
+.howto{margin-top:14px;padding-top:12px;border-top:1px solid var(--line)}
+.howto>b{font-size:13px;color:var(--muted)}
+.howto ol{margin:6px 0 0;padding-left:20px;display:grid;gap:8px}
+.howto li{padding-left:2px}
+.howto li::marker{font-weight:700;color:var(--wine)}
+.howto .gname{font-size:14px}
+.coll{margin-top:4px;padding-top:0;border-top:0}
 </style>
 </head>
 <body>
@@ -1184,6 +1191,19 @@ function renderComplete(){
   const C = EV.complete, items = C.items;
   const n = items.filter(isDone).length;
   const shared = items.length>1 && items.every(i=>i.img===items[0].img) ? EV.gimg[items[0].img] : "";
+  if(C.collect){
+    const sub = (C.sub||"").split(" · ").filter(s=>!s.includes("체크")).join(" · ");
+    el.innerHTML = `<h2>${esc(C.title||"이벤트")}</h2>${sub?`<p class="gs">${esc(sub)}</p>`:""}` +
+      (shared ? `<div class="cbig"><img class="zoomable" src="${shared}" alt="${esc(C.title||"이벤트")} 증정품"></div>` : "") +
+      `<div id="collSlot"></div>` +
+      `<div class="howto"><b>받는 방법</b><ol>${items.map(i=>`<li><span class="gname">${esc(i.name.replace(/^[①-⑳]\s*/,""))}</span><span class="gcond">${esc(i.cond)}</span></li>`).join("")}</ol></div>` +
+      (C.note ? `<div class="gnote">${esc(C.note)}</div>` : "") +
+      (tagsOf(C).length ? `<div class="tagbox"><div class="tl"><span>필수 해시태그 ${tagsOf(C).length}개</span><button type="button" id="btnTags">해시태그 복사</button></div><div class="tags2">${esc(tagsOf(C).join(" "))}</div></div>` : "") +
+      (C.notes ? `<details class="gnote"><summary>이벤트 유의사항</summary><ul>${C.notes.map(t=>`<li>${esc(t)}</li>`).join("")}</ul></details>` : "");
+    $("collSlot").replaceWith(buildCollect(C.collect));
+    $("btnTags") && ($("btnTags").onclick = ()=>copyText(tagsOf(C).join(" "), "해시태그를 복사했어요"));
+    return;
+  }
   el.innerHTML = `<h2>${esc(C.title||"Complete 특전")}</h2><p class="gs">${esc(C.sub||"구매와 별개로 받는 특전이에요")} · 받으면 체크 (${n}/${items.length})</p>` +
     (shared ? `<div class="cbig"><img class="zoomable" src="${shared}" alt="${esc(C.title||"이벤트")} 증정품"></div>` : "") +
     items.map(i=>`<label class="grow chk"><input type="checkbox" data-k="${i.k}" ${isDone(i)?"checked":""}>
@@ -1227,7 +1247,9 @@ function renderLdTab(){
   if(EV.complete){
     const its = EV.complete.items;
     eb.setAttribute("aria-pressed", state.active==="ev");
-    eb.innerHTML = `${esc(evLabel(EV))}<span class="tc">${its.filter(isDone).length}/${its.length}</span>`;
+    const cf = EV.complete.collect;
+    const cnt = cf ? `${Array.from({length:cf.n},(_,i)=>i+1).filter(k=>(state.coll.have[k]||0)>0).length}/${cf.n}` : `${its.filter(isDone).length}/${its.length}`;
+    eb.innerHTML = `${esc(evLabel(EV))}<span class="tc">${cnt}</span>`;
   }
 }
 function renderTabs(){
@@ -1283,7 +1305,7 @@ function render(){
   $("hint").textContent = isLd
     ? `${state.ld.name} 금액은 MD 장바구니와 따로 계산돼요. 구매 특전 금액에는 포함되지 않아요.`
     : isCafe ? (EV.cafeHint || "카페 메뉴는 여기서 따로 담아요. 메뉴 증정품도 이 탭에서 계산하고, 메뉴 금액은 구매 특전 금액에 포함되지 않아요.")
-    : isEv ? "구매와 별개로 참여하는 이벤트예요. 받았으면 체크해 두세요."
+    : isEv ? (EV.complete && EV.complete.collect ? "구매와 별개로 참여하는 이벤트예요. 받은 포토카드는 도감에 기록해 두세요." : "구매와 별개로 참여하는 이벤트예요. 받았으면 체크해 두세요.")
     : (EV.cartHint || "선택한 장바구니에 담겨요. 구매 제한은 모든 장바구니를 합쳐서 적용돼요.");
   $("gift").style.display = (isLd || isEv) ? "none" : "";
   $("complete").style.display = (isEv && EV.complete) ? "" : "none";
