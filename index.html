@@ -176,12 +176,12 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .evcard{display:block;text-align:left;width:100%;background:var(--homebg);border:1px solid var(--hline);border-radius:10px;overflow:hidden;cursor:pointer;color:inherit;font:inherit;padding:0}
 .evcard:hover{border-color:var(--hmuted)}
 .evcard:focus-visible{outline:2px solid var(--wine);outline-offset:2px}
-.evcover{position:relative;height:0;padding-bottom:125%;background:#f1f1f1;overflow:hidden}
-.evcard{display:flex;flex-direction:column;height:100%}
-.evinfo{display:flex;flex-direction:column;flex:1}
+.evcover{display:block;position:relative;width:100%;height:0;padding-bottom:125%;background:#f1f1f1;overflow:hidden}
+.evcard{display:block;height:100%;cursor:pointer;text-align:left;box-sizing:border-box}
+.evinfo{display:block}
 .evname{min-height:2.6em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
 .evdate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.evmeta{margin-top:auto !important;padding-top:10px;flex-wrap:wrap;row-gap:2px}
+.evmeta{margin-top:0 !important;padding-top:10px;flex-wrap:wrap;row-gap:2px}
 .evsum{margin-top:4px;font-size:13px;color:var(--hmuted);line-height:1.4;word-break:keep-all}
 .evsum b{font-weight:600}
 .evsum.on{color:var(--ink)}
@@ -1388,8 +1388,9 @@ function renderHome(){
   });
   cards.sort((x,y)=>(x.ended?1:0)-(y.ended?1:0));
   cards.forEach(c=>{
-    const b = document.createElement("button");
-    b.type = "button"; b.className = "evcard" + (c.ended ? " ended" : "");
+    const b = document.createElement("div");
+    b.setAttribute("role","button"); b.tabIndex = 0; b.className = "evcard" + (c.ended ? " ended" : "");
+    b.onkeydown = e=>{ if(e.key==="Enter" || e.key===" "){ e.preventDefault(); go(c.target); } };
     b.innerHTML = `<div class="evcover"><img src="${c.cover}" alt="${esc(c.title)} 대표 이미지">${c.ended ? `<div class="endmask"><span>END</span></div>` : ""}</div>
       <div class="evinfo"><div class="evname">${esc(c.title)}</div>
       ${c.sub ? `<div class="evdate">${esc(c.sub)}</div>` : ""}
