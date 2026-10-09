@@ -313,7 +313,8 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 
 /* ---- 상단 증정품 요약 · 하단 계산 접기 · 해시태그 복사 ---- */
 .hint{margin:-2px 0 12px}
-.giftmini{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:5px;margin-top:8px}
+.giftmini{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:8px}
+.giftmini .gm:last-child:nth-child(odd){grid-column:1/-1}
 .giftmini::-webkit-scrollbar{display:none}
 .giftmini:empty{display:none}
 .gm{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:center;background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:3px 8px 3px 3px;font-size:12.5px;white-space:nowrap;min-width:0}
@@ -1547,16 +1548,15 @@ function renderGiftMini(){
   }).join("");
   chips.forEach(x=>{ gmPrev[key0+x.r.id] = x.n; });
 }
-const manWon = n => n>=10000 && n%10000===0 ? `${n/10000}만원` : won(n);
 function giftRows(){
   const c = cart(), b = EV.combineCarts ? allBenefits() : benefits(c), ab = allBenefits();
   return mdGifts().map(r=>{
     const src = (r.combine && !EV.combineCarts) ? ab : b;
     const n = src.g[r.id], t = r.rule; let next = "", pct = null, short = "";
-    if(t.type==="min"){ pct = Math.min(100, src.elig/t.amount*100); if(!n){ next = `${won(t.amount-src.elig)} 더 담으면 받아요`; short = `${manWon(t.amount-src.elig)} 더`; } }
+    if(t.type==="min"){ pct = Math.min(100, src.elig/t.amount*100); if(!n){ next = `${won(t.amount-src.elig)} 더 담으면 받아요`; short = `+${won(t.amount-src.elig)}`; } }
     else if(t.type==="per"){
       if(t.cap && n>=t.cap){ pct = 100; next = `최대 ${t.cap}${r.unit||"개"}까지 받았어요`; short = "최대"; }
-      else { const m = src.elig % t.amount; pct = m/t.amount*100; next = `다음 1${r.unit||"개"}까지 ${won(t.amount-m)}`; short = `+1까지 ${manWon(t.amount-m)}`; }
+      else { const m = src.elig % t.amount; pct = m/t.amount*100; next = `다음 1${r.unit||"개"}까지 ${won(t.amount-m)}`; short = `+1까지 ${won(t.amount-m)}`; }
     }
     return {r,n,next,pct,short};
   });
