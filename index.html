@@ -128,8 +128,10 @@ header p{margin:6px 0 0;color:var(--muted);font-size:14px}
 .currow.act{opacity:1}
 .currow.act span::before{content:"\25CF  ";color:#ff8a92}
 .sum{display:flex;align-items:baseline;justify-content:space-between;gap:12px}
-.sum .cnt{font-size:13px;opacity:.75}
-.sum .tot{font-family:var(--serif);font-weight:800;font-size:26px;font-variant-numeric:tabular-nums}
+.sum .cnt{font-size:13px;opacity:.75;min-width:0;line-height:1.35}
+.sum .cnt .cl{display:block;white-space:nowrap}
+.sum .tot{font-family:var(--serif);font-weight:800;font-size:26px;font-variant-numeric:tabular-nums;white-space:nowrap;flex:none}
+@media (max-width:360px){.sum .tot{font-size:22px}}
 .acts{display:flex;gap:8px;margin-top:10px}
 .acts button{flex:1;font:inherit;font-size:14px;padding:9px 6px;border-radius:3px;cursor:pointer;border:1px solid rgba(255,255,255,.3);background:transparent;color:inherit}
 .acts button.pri{background:var(--wine);border-color:var(--wine);color:#fff}
@@ -1938,7 +1940,7 @@ function updateBar(){
   const mdQ = state.carts.reduce((a,c)=>a+cartTotals(c).q,0), parts = [];
   if(mdQ) parts.push(`굿즈 ${mdQ}개`);
   sidePools().forEach(p=>{ const q = cartTotals(p.c).q; if(q) parts.push(`${p.kind==="cafe" ? "카페 메뉴" : p.c.name} ${q}개`); });
-  $("cnt").textContent = parts.length>1 ? `전체 합계 · ${parts.join(" · ")}` : multi ? `전체 합계 · ${all.q}개` : `${all.q}개 담음`;
+  $("cnt").innerHTML = parts.length>1 ? `<span class="cl">전체 합계</span>${parts.map(t=>`<span class="cl">${esc(t)}</span>`).join("")}` : multi ? `<span class="cl">전체 합계</span><span class="cl">${all.q}개</span>` : `${all.q}개 담음`;
   const r = $("receipt");
   if(!all.q){ r.innerHTML = `<div class="empty">담은 굿즈가 없어요.</div>`; return; }
   let rows = "";
