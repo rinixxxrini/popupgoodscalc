@@ -291,15 +291,18 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 
 /* ---- 상단 증정품 요약 · 하단 계산 접기 · 해시태그 복사 ---- */
 .hint{margin:-2px 0 12px}
-.giftmini{display:flex;gap:6px;overflow-x:auto;margin-top:8px;scrollbar-width:none}
+.giftmini{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:5px;margin-top:8px}
 .giftmini::-webkit-scrollbar{display:none}
 .giftmini:empty{display:none}
-.gm{flex:none;display:flex;align-items:center;gap:6px;background:var(--sheet);border:1px solid var(--line);border-radius:999px;padding:3px 10px 3px 3px;font-size:12.5px;white-space:nowrap}
-.gm img{width:24px;height:24px;border-radius:50%;object-fit:cover;background:#fff;display:block}
+.gm{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:center;background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:3px 8px 3px 3px;font-size:12.5px;white-space:nowrap;min-width:0}
+.gm .gt{display:flex;align-items:baseline;gap:5px;min-width:0}
+.gm .gn{overflow:hidden;text-overflow:ellipsis}
+.gm img{grid-row:span 2}
+.gm img{width:30px;height:30px;border-radius:50%;object-fit:cover;background:#fff;display:block}
 .gm b{font-size:14px;font-variant-numeric:tabular-nums;color:var(--muted)}
 .gm.on{border-color:var(--wine);background:var(--wine-soft)}
 .gm.on b{color:var(--wine)}
-.gm small{font-size:11px;color:var(--muted)}
+.gm small{font-size:11px;color:var(--muted);line-height:1.2;overflow:hidden;text-overflow:ellipsis}
 .gm.bump{animation:gmbump .35s ease}
 @keyframes gmbump{40%{transform:scale(1.08)}}
 @media (prefers-reduced-motion: reduce){.gm.bump{animation:none}}
@@ -1516,7 +1519,7 @@ function renderGiftMini(){
   const key0 = String(act);
   el.innerHTML = chips.map(x=>{
     const bump = gmPrev[key0+x.r.id]!==undefined && gmPrev[key0+x.r.id]!==x.n;
-    return `<span class="gm${x.n?" on":""}${bump?" bump":""}"><img loading="lazy" src="${EV.gimg[x.r.img]}" alt="">${esc(x.r.short)} <b>${x.n}</b>${x.next?`<small>${esc(x.next)}</small>`:""}</span>`;
+    return `<span class="gm${x.n?" on":""}${bump?" bump":""}"><img loading="lazy" src="${EV.gimg[x.r.img]}" alt=""><span class="gt"><span class="gn">${esc(x.r.short)}</span><b>${x.n}</b></span>${x.next?`<small>${esc(x.next)}</small>`:""}</span>`;
   }).join("");
   chips.forEach(x=>{ gmPrev[key0+x.r.id] = x.n; });
 }
