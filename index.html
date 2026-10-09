@@ -144,6 +144,7 @@ header p{margin:6px 0 0;color:var(--muted);font-size:14px}
 .receipt .empty{opacity:.7;font-size:13px;padding:6px 0}
 .toast{position:fixed;left:50%;bottom:190px;transform:translateX(-50%);background:var(--wine);color:#fff;padding:8px 14px;border-radius:3px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s;z-index:6;max-width:90%;text-align:center}
 .toast.show{opacity:1}
+.toast.info{background:#2b2826;color:#fff;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 footer{color:var(--muted);font-size:12px;text-align:center;margin-top:18px}
 .gift{background:var(--sheet);border:1px solid var(--line);border-radius:4px;margin:0 0 12px;padding:14px 16px}
 .gift h2{font-family:var(--serif);font-size:18px;font-weight:800;margin:0}
@@ -1871,7 +1872,7 @@ function setQty(it,v,raw,anchor){
   const cap = q + Math.max(0, maxFor(it) - usedAll(it,v));
   if(n>cap){
     n = cap;
-    toast(it.limit ? `${it.name}: ${limitLabel(it)}까지 (모든 장바구니 합산)` : `한 번에 최대 ${SOFT_MAX}개까지 담을 수 있어요`);
+    toast(it.limit ? `${it.name}${v?` [${v}]`:""}: ${limitLabel(it)}까지라 ${n}개로 맞췄어요 (모든 장바구니 합산)` : `한 번에 최대 ${SOFT_MAX}개까지 담을 수 있어요`);
   }
   if(n===0) delete c.qty[k]; else c.qty[k] = n;
   save(); refresh(anchor);
@@ -1879,10 +1880,10 @@ function setQty(it,v,raw,anchor){
 function change(it,v,d,anchor){
   const c = cart(), k = key(it,v);
   const q = c.qty[k]||0;
-  if(d>0 && usedAll(it,v) >= maxFor(it)){ toast(`${it.name}: ${limitLabel(it)}까지 (모든 장바구니 합산)`); return; }
+  if(d>0 && usedAll(it,v) >= maxFor(it)){ toast(it.limit ? `${it.name}${v?` [${v}]`:""}: ${limitLabel(it)}까지라 더 담을 수 없어요 (모든 장바구니 합산)` : `한 번에 최대 ${SOFT_MAX}개까지 담을 수 있어요`); return; }
   const next = Math.max(0, q+d);
   if(next===0) delete c.qty[k]; else c.qty[k] = next;
-  if(d>0 && it.limit && usedAll(it,v)>=it.limit) toast(`${it.name}${v?` [${v}]`:""}: 합산 최대 수량이에요`);
+  if(d>0 && it.limit && usedAll(it,v)>=it.limit) toast(`${it.name}${v?` [${v}]`:""}: 최대 수량(${it.limit}${it.unit||"개"})까지 담았어요`, "info");
   save(); refresh(anchor);
 }
 // 수량만 바뀔 때는 목록을 새로 그리지 않고 수량 칸만 바꿔요. (전체를 다시 그리면 이미지가 다시 로드되면서 화면이 밀려요)
@@ -2140,9 +2141,9 @@ document.addEventListener("touchmove", e=>{ if(e.touches.length > 1) e.preventDe
 
 /* ======================= 공통 동작 ======================= */
 let tt;
-function toast(msg){
+function toast(msg, kind){
   const t = $("toast");
-  t.textContent = msg; t.classList.add("show");
+  t.textContent = msg; t.classList.toggle("info", kind==="info"); t.classList.add("show");
   clearTimeout(tt); tt = setTimeout(()=>t.classList.remove("show"),2000);
 }
 const goTab = a => { if(!specialActive(state.active)) state.lastMd = state.active; state.active = a; delArmed = false; save(); render(); };
