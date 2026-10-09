@@ -313,8 +313,9 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 
 /* ---- 상단 증정품 요약 · 하단 계산 접기 · 해시태그 복사 ---- */
 .hint{margin:-2px 0 12px}
-.giftmini{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;margin-top:8px}
-.giftmini .gm:last-child:nth-child(odd){grid-column:1/-1}
+.giftmini{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:5px;margin-top:8px}
+.giftmini .gm{grid-column:span var(--s2,3)}
+@media (min-width:560px){.giftmini .gm{grid-column:span var(--s3,2)}}
 .giftmini::-webkit-scrollbar{display:none}
 .giftmini:empty{display:none}
 .gm{display:grid;grid-template-columns:auto minmax(0,1fr);column-gap:6px;align-items:center;background:var(--sheet);border:1px solid var(--line);border-radius:12px;padding:3px 8px 3px 3px;font-size:12.5px;white-space:nowrap;min-width:0}
@@ -1542,9 +1543,13 @@ function renderGiftMini(){
     chips = cafeGifts().map(r=>({r,n:b.g[r.id],next:""}));
   } else chips = giftRows().map(x=>({r:x.r,n:x.n,next:x.short||""}));
   const key0 = String(act);
-  el.innerHTML = chips.map(x=>{
+  // 넓은 화면은 한 줄 최대 3개(3→3 · 4→2·2 · 5→2·3), 모바일은 최대 2개 · 남는 칸은 아래 줄로
+  const spans = max => { const n = chips.length, rows = Math.ceil(n/max) || 1, base = Math.floor(n/rows), extra = n % rows, out = [];
+    for(let r=0;r<rows;r++){ const k = r<rows-extra ? base : base+1; for(let j=0;j<k;j++) out.push(6/k); } return out; };
+  const s3 = spans(3), s2 = spans(2);
+  el.innerHTML = chips.map((x,i)=>{
     const bump = gmPrev[key0+x.r.id]!==undefined && gmPrev[key0+x.r.id]!==x.n;
-    return `<span class="gm${x.n?" on":""}${bump?" bump":""}"><img loading="lazy" src="${EV.gimg[x.r.img]}" alt=""><span class="gt"><span class="gn">${esc(x.r.short)}</span><b>${x.n}</b></span>${x.next?`<small>${esc(x.next)}</small>`:""}</span>`;
+    return `<span class="gm${x.n?" on":""}${bump?" bump":""}" style="--s3:${s3[i]};--s2:${s2[i]}"><img loading="lazy" src="${EV.gimg[x.r.img]}" alt=""><span class="gt"><span class="gn">${esc(x.r.short)}</span><b>${x.n}</b></span>${x.next?`<small>${esc(x.next)}</small>`:""}</span>`;
   }).join("");
   chips.forEach(x=>{ gmPrev[key0+x.r.id] = x.n; });
 }
