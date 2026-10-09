@@ -5,6 +5,20 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="theme-color" content="#1c1a1a">
 <title>GOODS LIST</title>
+<meta name="description" content="BL 콜라보 팝업스토어·카페 굿즈 리스트와 구매 특전 계산기. 굿즈를 담으면 특전 개수와 합계를 바로 계산해요.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="GOODS LIST">
+<meta property="og:title" content="GOODS LIST · BL 콜라보 팝업 & 카페 리스트">
+<meta property="og:description" content="BL 콜라보 팝업스토어·카페 굿즈 리스트와 구매 특전 계산기. 굿즈를 담으면 특전 개수와 합계를 바로 계산해요.">
+<meta property="og:url" content="https://rinixxxrini.github.io/">
+<meta property="og:image" content="https://rinixxxrini.github.io/img/og.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:locale" content="ko_KR">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="GOODS LIST · BL 콜라보 팝업 & 카페 리스트">
+<meta name="twitter:description" content="BL 콜라보 팝업스토어·카페 굿즈 리스트와 구매 특전 계산기.">
+<meta name="twitter:image" content="https://rinixxxrini.github.io/img/og.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@700;800&family=IBM+Plex+Sans+KR:wght@400;500;600&display=swap" rel="stylesheet">
@@ -219,7 +233,10 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .evdate{color:var(--hmuted);font-size:12px;margin-top:4px}
 .evmeta{display:flex;gap:9px;margin-top:8px;font-size:12px;color:var(--hmuted)}
 .evmeta b{color:var(--wine);font-weight:600}
-.homefoot{color:var(--hmuted);font-size:12px;text-align:center;margin-top:26px}
+.homefoot{color:var(--hmuted);font-size:12px;text-align:center;margin-top:26px;line-height:1.6}
+.bkrow{display:flex;justify-content:center;gap:8px;margin-top:10px}
+.bkrow button{font:inherit;font-size:12.5px;padding:7px 12px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);border-radius:999px;cursor:pointer}
+.bktext{width:100%;min-height:120px;font:12px/1.4 ui-monospace,Menlo,monospace;padding:8px;border:1px solid var(--line);border-radius:4px;background:#fff;color:var(--ink);word-break:break-all;resize:vertical;box-sizing:border-box}
 .evbar{display:flex;align-items:center;gap:8px;margin:-8px 0 14px}
 .evbar button{font:inherit;font-size:13px;padding:7px 11px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);border-radius:3px;cursor:pointer}
 .evbar .sp{flex:1}
@@ -367,7 +384,9 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
     </div>
     <div class="homesearch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="homeQ" type="search" placeholder="행사·작품·장소·굿즈 이름으로 검색" aria-label="행사 검색" autocomplete="off"><button type="button" id="homeQx" aria-label="검색어 지우기" hidden>×</button></div>
     <div class="evgrid" id="evgrid"></div>
-    <div class="homefoot">담은 내용은 이 브라우저에만 저장돼요.</div>
+    <div class="homefoot">담은 내용은 이 브라우저에만 저장돼요. 기기를 바꾸거나 캐시를 지우기 전에 백업해 두세요.
+      <div class="bkrow"><button type="button" id="btnBackup">백업 코드 복사</button><button type="button" id="btnRestore">백업 불러오기</button></div>
+    </div>
   </div>
 </div>
 
@@ -1906,7 +1925,10 @@ function updateBar(){
   const multi = state.carts.length>1 || sidePools().some(p=>cartTotals(p.c).q>0);
   const all = poolTotals();
   $("tot").textContent = won(all.sum);
-  $("cnt").textContent = multi ? `전체 합계 · ${all.q}개` : `${all.q}개 담음`;
+  const mdQ = state.carts.reduce((a,c)=>a+cartTotals(c).q,0), parts = [];
+  if(mdQ) parts.push(`굿즈 ${mdQ}개`);
+  sidePools().forEach(p=>{ const q = cartTotals(p.c).q; if(q) parts.push(`${p.kind==="cafe" ? "카페 메뉴" : p.c.name} ${q}개`); });
+  $("cnt").textContent = parts.length>1 ? `전체 합계 · ${parts.join(" · ")}` : multi ? `전체 합계 · ${all.q}개` : `${all.q}개 담음`;
   const r = $("receipt");
   if(!all.q){ r.innerHTML = `<div class="empty">담은 굿즈가 없어요.</div>`; return; }
   let rows = "";
@@ -2209,6 +2231,53 @@ document.addEventListener("click", e=>{
   const b = e.target.closest("#homeTabs button"); if(!b) return;
   homeTab = b.dataset.s; try { localStorage.setItem("home-tab", homeTab); } catch(_){}
   renderHome();
+});
+/* ---- 백업: 모든 행사의 담은 내용을 코드 한 줄로 복사하고, 다른 기기에서 붙여 넣어 불러와요 ---- */
+const BK_PREFIX = "GOODSLIST1:";
+function backupCode(){
+  const data = {};
+  try {
+    for(let i=0;i<localStorage.length;i++){ const k = localStorage.key(i); if(k && k.startsWith("mdcalc-")) data[k] = localStorage.getItem(k); }
+  } catch(e){}
+  const json = JSON.stringify({v:1, at:new Date().toISOString(), data});
+  return BK_PREFIX + btoa(unescape(encodeURIComponent(json)));
+}
+function readBackup(code){
+  const t = String(code||"").replace(/\s+/g,"");
+  if(!t.startsWith(BK_PREFIX)) throw new Error("prefix");
+  const o = JSON.parse(decodeURIComponent(escape(atob(t.slice(BK_PREFIX.length)))));
+  if(!o || o.v!==1 || typeof o.data!=="object") throw new Error("format");
+  return o;
+}
+document.addEventListener("click", e=>{
+  if(e.target.id==="btnBackup"){
+    const code = backupCode();
+    const n = Object.keys(JSON.parse(decodeURIComponent(escape(atob(code.slice(BK_PREFIX.length))))).data).length;
+    if(!n){ toast("아직 담은 내용이 없어요"); return; }
+    copyText(code, `백업 코드를 복사했어요 (행사 ${n}개)`);
+    openModal(`<div class="mhead"><b>백업 코드</b><button type="button" id="mClose">닫기</button></div>
+      <p class="mtip">행사 ${n}개의 담은 내용이에요. 메모장이나 나에게 보내기에 붙여 넣어 두고, 다른 기기에서는 ‘백업 불러오기’에 붙여 넣으세요. 자동 복사가 안 됐으면 아래 칸을 길게 눌러 전체 복사해 주세요.</p>
+      <textarea class="bktext" id="bkOut" readonly></textarea>`);
+    $("bkOut").value = code;
+    $("mClose").onclick = closeModal;
+  }
+  if(e.target.id==="btnRestore"){
+    openModal(`<div class="mhead"><b>백업 불러오기</b><button type="button" id="mClose">닫기</button></div>
+      <p class="mtip">복사해 둔 백업 코드를 붙여 넣으세요. 코드에 있는 행사는 지금 담긴 내용이 백업 내용으로 바뀌어요.</p>
+      <textarea class="bktext" id="bkIn" placeholder="${BK_PREFIX}..."></textarea>
+      <div class="mact" style="display:flex;justify-content:flex-end;margin-top:8px"><button type="button" id="bkGo">불러오기</button></div>`);
+    $("mClose").onclick = closeModal;
+    $("bkGo").onclick = ()=>{
+      let o;
+      try { o = readBackup($("bkIn").value); } catch(_){ toast("백업 코드가 올바르지 않아요"); return; }
+      const keys = Object.keys(o.data).filter(k=>k.startsWith("mdcalc-"));
+      if(!keys.length){ toast("백업 코드에 담은 내용이 없어요"); return; }
+      const when = new Date(o.at); const ws = isNaN(when) ? "" : ` (${when.getMonth()+1}/${when.getDate()} ${String(when.getHours()).padStart(2,"0")}:${String(when.getMinutes()).padStart(2,"0")} 백업)`;
+      if(!confirm(`행사 ${keys.length}개의 담은 내용을 불러올까요?${ws}\n지금 이 기기에 담긴 같은 행사 내용은 덮어써져요.`)) return;
+      try { keys.forEach(k=>localStorage.setItem(k, o.data[k])); } catch(_){ toast("저장하지 못했어요. 브라우저 저장 공간을 확인해 주세요"); return; }
+      closeModal(); toast("백업을 불러왔어요"); renderHome();
+    };
+  }
 });
 let homeQ = "";
 const normQ = t => String(t||"").toLowerCase().replace(/[×x·&,()\[\]#<>]/g," ").replace(/\s+/g," ").trim();
