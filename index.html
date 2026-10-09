@@ -230,39 +230,8 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .mbox img{display:block;width:100%;height:auto;border-radius:3px;border:1px solid var(--line);margin-bottom:10px;background:#fff}
 .mtip{font-size:12.5px;color:var(--muted);margin:0 0 10px}
 
-/* ---- grid layout: 모바일 2열 · 넓은 화면 3열 ---- */
-.wrap{max-width:1040px}
-.hometop-in,.bar-in{max-width:1040px}
-.wrap.home{max-width:1040px}
-.evgrid{gap:12px}
-@media (min-width:720px){.evgrid{grid-template-columns:repeat(3,minmax(0,1fr));gap:18px}}
-@media (max-width:559px){.evgrid{grid-template-columns:repeat(2,minmax(0,1fr))}}
-.list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;background:transparent;border:0;border-radius:0}
-@media (min-width:720px){.list{grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}}
-.list .item{display:flex;flex-direction:column;min-width:0;padding:10px;background:var(--sheet);border:1px solid var(--line) !important;border-radius:8px}
-@media (min-width:720px){.list .item{padding:14px}}
-.list .item.on{background:var(--sheet);border-color:var(--wine) !important;box-shadow:inset 0 0 0 1px var(--wine)}
-.list .item.empty{grid-column:1/-1;color:var(--muted)}
-.list .cathead{grid-column:1/-1;border:1px solid var(--line);border-radius:8px}
-.list .pic{order:-1;margin:0 0 10px;padding:6px;aspect-ratio:1/1;max-width:100%;align-items:center;border-radius:6px}
-.list .pic img{max-height:100%;max-width:100%;width:auto;height:auto;object-fit:contain}
-.list .pic.none{background:var(--chip);border-style:dashed;color:var(--muted);font-size:12px}
-.list .head{flex-wrap:wrap;gap:6px;align-items:center}
-.list .head .no{order:0;margin:0;width:auto;min-width:26px;padding:0 5px}
-.list .head .tags{order:1;flex:1 1 auto;flex-direction:row;flex-wrap:wrap;justify-content:flex-end;gap:4px}
-.list .head .limit{margin:0;font-size:11px;padding:2px 6px}
-.list .head .title{order:2;flex:1 1 100%;min-width:0}
-.list .name{font-size:14.5px;word-break:keep-all;overflow-wrap:anywhere}
-.list .sub{font-size:12px;word-break:keep-all;overflow-wrap:anywhere}
-.list .price{font-size:15px}
-.list .vars{grid-template-columns:minmax(0,1fr);gap:6px;margin-top:auto;padding:10px 0 0}
-.list .var{padding:6px}
-.list .var .row{flex-wrap:wrap;gap:4px}
-.list .var .vl{min-width:0;overflow-wrap:anywhere}
-.list .step{margin-left:auto}
-.list .step button{width:30px;height:30px}
-.list .step .qin{width:38px;height:30px}
-@media (max-width:380px){.list .step button{width:28px;height:28px}.list .step .qin{width:32px}}
+/* 대표 이미지: iOS Safari에서 aspect-ratio 박스가 0 높이로 접히는 문제 대응 */
+.evcover{aspect-ratio:auto;height:0;padding-top:125%;flex:none;width:100%;overflow:hidden}
 </style>
 </head>
 <body>
@@ -1106,7 +1075,7 @@ function render(){
   }
   items.forEach(it=>list.appendChild(buildItem(it,cur)));
   if(!list.children.length){
-    list.innerHTML = `<div class="item empty">조건에 맞는 굿즈가 없어요.</div>`;
+    list.innerHTML = `<div class="item" style="color:var(--muted)">조건에 맞는 굿즈가 없어요.</div>`;
   }
   updateBar();
   renderComplete();
@@ -1126,12 +1095,12 @@ function buildItem(it,cur){
       </div>
       <div class="tags">${it.limit?`<span class="limit">${limitLabel(it)}</span>`:""}${it.noBenefit?`<span class="limit ex">특전 금액 제외</span>`:""}</div>
     </div>`;
-  const pic = document.createElement("div");
   if(EV.imgs[it.no]){
+    const pic = document.createElement("div");
     pic.className = "pic";
     pic.innerHTML = `<img src="${EV.imgs[it.no]}" alt="${esc(it.name)}" loading="lazy">`;
-  } else { pic.className = "pic none"; pic.textContent = "이미지 없음"; }
-  el.appendChild(pic);
+    el.appendChild(pic);
+  }
   const vars = document.createElement("div");
   vars.className = "vars";
   (it.vars||[null]).forEach(v=>{
