@@ -1358,7 +1358,7 @@ const EVENTS = [{
 }];
 
 const GROUPS = {
-  kdl:{work:"키스 미 이프 유 캔 · 디자이어 미 이프 유 캔",kw:"키스 미 이프 유 캔 디자이어 미 이프 유 캔 키이프 디이프 kiss me if you can desire me if you can 키스 디자이어 랜드 굿즈모먼트 goodsmoment",title:"Kiss × Desire Land",sub:"굿즈모먼트 2F · 4F",dates:"2026.10.8(목) - 2026.11.1(일)",cover:KD_COVER,parts:["kdl-pop","kdl-cafe"],entry:"kdl-pop"}
+  kdl:{work:"키스 미 이프 유 캔\n디자이어 미 이프 유 캔",kw:"키스 미 이프 유 캔 디자이어 미 이프 유 캔 키이프 디이프 kiss me if you can desire me if you can 키스 디자이어 랜드 굿즈모먼트 goodsmoment",title:"Kiss × Desire Land",sub:"굿즈모먼트 2F · 4F",dates:"2026.10.8(목) - 2026.11.1(일)",cover:KD_COVER,parts:["kdl-pop","kdl-cafe"],entry:"kdl-pop"}
 };
 const HOME = [{ev:"sp"},{ev:"usl"},{ev:"ws"},{ev:"jinx"},{group:"kdl"},{ev:"lap"},{ev:"sg"},{ev:"mtg"},{ev:"bv"},{ev:"sh"}];
 
@@ -2235,7 +2235,7 @@ function renderHome(){
     b.setAttribute("role","button"); b.tabIndex = 0; b.className = "evcard" + (c.ended ? " ended" : "");
     b.onkeydown = e=>{ if(e.key==="Enter" || e.key===" "){ e.preventDefault(); go(c.target); } };
     b.innerHTML = `<div class="evcover"><img loading="lazy" src="${c.cover}" alt="${esc(c.title)} 대표 이미지">${c.ended ? `<div class="endmask"><span>END</span></div>` : ""}</div>
-      <div class="evinfo"><div class="evwork">${esc(c.work)}</div>${c.work!==c.title ? `<div class="evname">${esc(c.title)}</div>` : ""}
+      <div class="evinfo"><div class="evwork">${esc(c.work).replace(/\n/g,"<br>")}</div>${c.work!==c.title ? `<div class="evname">${esc(c.title)}</div>` : ""}
       ${c.sub ? `<div class="evdate">${esc(c.sub)}</div>` : ""}
       ${c.dates ? `<div class="evdate">${esc(c.dates)}</div>` : ""}
       <div class="evmeta"><span>${c.count}종</span><span>내 리스트 <b>${c.n}개</b></span></div>
