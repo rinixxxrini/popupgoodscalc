@@ -178,7 +178,13 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .homehead h1{font-family:var(--sans);font-weight:700;font-size:21px;letter-spacing:.01em;margin:0;line-height:1.3;word-break:keep-all}
 .homehead p{margin:3px 0 0;color:var(--hmuted);font-size:13.5px}
 .hometabs{margin-top:16px;flex-wrap:wrap}.hometabs b{font-weight:600;margin-left:2px;opacity:.7}.homeempty{grid-column:1/-1;color:var(--muted);padding:32px 0;text-align:center}
-.evgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:20px}
+.homesearch{position:relative;margin-top:14px;display:flex;align-items:center}
+.homesearch svg{position:absolute;left:12px;width:17px;height:17px;fill:none;stroke:var(--muted);stroke-width:2;stroke-linecap:round;pointer-events:none}
+.homesearch input{flex:1;min-width:0;font:inherit;font-size:16px;padding:10px 38px 10px 38px;border:1px solid var(--line);background:var(--sheet);color:var(--ink);border-radius:999px;-webkit-appearance:none;appearance:none}
+.homesearch input::-webkit-search-cancel-button{display:none}
+.homesearch input:focus{outline:none;border-color:var(--wine)}
+.homesearch button{position:absolute;right:8px;width:26px;height:26px;border:0;border-radius:50%;background:var(--chip);color:var(--muted);font-size:16px;line-height:1;cursor:pointer}
+.evgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:16px}
 @media (min-width:560px){.evgrid{grid-template-columns:repeat(3,minmax(0,1fr))}}
 .evcard{display:block;text-align:left;width:100%;background:var(--homebg);border:1px solid var(--hline);border-radius:10px;overflow:hidden;cursor:pointer;color:inherit;font:inherit;padding:0}
 .evcard:hover{border-color:var(--hmuted)}
@@ -354,6 +360,7 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
       <button type="button" data-s="soon" aria-pressed="false">운영 예정</button>
       <button type="button" data-s="ended" aria-pressed="false">운영 종료</button>
     </div>
+    <div class="homesearch"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg><input id="homeQ" type="search" placeholder="행사·작품·장소·굿즈 이름으로 검색" aria-label="행사 검색" autocomplete="off"><button type="button" id="homeQx" aria-label="검색어 지우기" hidden>×</button></div>
     <div class="evgrid" id="evgrid"></div>
     <div class="homefoot">담은 내용은 이 브라우저에만 저장돼요.</div>
   </div>
@@ -465,7 +472,7 @@ const SH_GIMG = {"coaster": "img/sh_gimg/coaster-a57cc125.jpg", "postcard": "img
 const SH_COVER = "img/sh_cover/cover-2bc3cd22.jpg";
 const SP_IMGS = {"1": "img/sp_imgs/1-0204f953.jpg", "2": "img/sp_imgs/2-af4eb4ad.jpg", "3": "img/sp_imgs/3-709047e0.jpg", "4": "img/sp_imgs/4-8e92fb59.jpg", "5": "img/sp_imgs/5-447a59fa.jpg", "6": "img/sp_imgs/6-be4c3b0e.jpg", "7": "img/sp_imgs/7-3982f8ea.jpg", "8": "img/sp_imgs/8-59d1e4fc.jpg", "9": "img/sp_imgs/9-220eca8f.jpg", "10": "img/sp_imgs/10-58addf72.jpg", "11": "img/sp_imgs/11-9bc1cd0e.jpg", "12": "img/sp_imgs/12-87660a81.jpg", "13": "img/sp_imgs/13-109f0c4c.jpg", "14": "img/sp_imgs/14-e22523f2.jpg", "15": "img/sp_imgs/15-6bb81f85.jpg", "16": "img/sp_imgs/16-5d51839a.jpg", "17": "img/sp_imgs/17-e3b7dd71.jpg", "18": "img/sp_imgs/18-3ec0a9eb.jpg", "31": "img/sp_imgs/31-f3b7c6d1.jpg", "32": "img/sp_imgs/32-11baac54.jpg", "33": "img/sp_imgs/33-00b2fce4.jpg", "34": "img/sp_imgs/34-fd22e766.jpg", "35": "img/sp_imgs/35-a179f6e9.jpg", "36": "img/sp_imgs/36-b4c009a4.jpg", "37": "img/sp_imgs/37-04b099bf.jpg", "38": "img/sp_imgs/38-5ddc4231.jpg", "39": "img/sp_imgs/39-7bac3d51.jpg", "40": "img/sp_imgs/40-83a52f4d.jpg", "51": "img/sp_imgs/51-feb978ba.jpg", "52": "img/sp_imgs/52-a4c5fbe8.jpg", "53": "img/sp_imgs/53-d4c7a3fa.jpg", "54": "img/sp_imgs/54-e1277465.jpg", "55": "img/sp_imgs/55-690cbc37.jpg", "56": "img/sp_imgs/56-88284599.jpg", "57": "img/sp_imgs/57-09b69199.jpg", "58": "img/sp_imgs/58-081c4813.jpg", "59": "img/sp_imgs/59-22d74f09.jpg", "60": "img/sp_imgs/60-36a1ee57.jpg"};
 const SP_GIMG = {"postcard": "img/sp_gimg/postcard-60387da9.jpg", "poster": "img/sp_gimg/poster-18ba4af3.jpg", "coasterd": "img/sp_gimg/coasterd-d7424041.jpg", "coastern": "img/sp_gimg/coastern-14a2317d.jpg", "stamppc": "img/sp_gimg/stamppc-f6d6cf3a.jpg", "sticker": "img/sp_gimg/sticker-2448748e.jpg", "rsv": "img/sp_gimg/rsv-3dd4ca0c.jpg", "welcome": "img/sp_gimg/welcome-c3a312d2.jpg", "stampcard": "img/sp_gimg/stampcard-6e620303.jpg"};
-const SP_COVER = "img/sp_cover/cover-362d281b.jpg";
+const SP_COVER = "img/sp_cover/cover-4a300ac5.jpg";
 const SP_DAY = ["img/sp_guides/day1-bb3882e9.jpg", "img/sp_guides/day2-fdd31fab.jpg"];
 const SP_NIGHT = ["img/sp_guides/night1-386ec85f.jpg", "img/sp_guides/night2-6666996c.jpg"];
 const SP_GUIDES = [{"title": "행사 포스터", "img": "img/sp_guides/poster-1d4e72ef.jpg"}, {"title": "MD LIST 1", "img": "img/sp_guides/md1-47bc2a14.jpg"}, {"title": "MD LIST 2", "img": "img/sp_guides/md2-556a9eba.jpg"}, {"title": "MD LIST 3", "img": "img/sp_guides/md3-e0e063b6.jpg"}, {"title": "MD LIST 4", "img": "img/sp_guides/md4-7a13ec54.jpg"}, {"title": "MD 특전", "img": "img/sp_guides/gift-50a7914e.jpg"}, {"title": "주간 메뉴 1", "img": "img/sp_guides/day1-bb3882e9.jpg"}, {"title": "주간 메뉴 2 · 코스터", "img": "img/sp_guides/day2-fdd31fab.jpg"}, {"title": "야간 메뉴 1 (애들은 재우고)", "img": "img/sp_guides/night1-386ec85f.jpg"}, {"title": "야간 메뉴 2 · 코스터", "img": "img/sp_guides/night2-6666996c.jpg"}, {"title": "스탬프 미션", "img": "img/sp_guides/stamp-86fe5d4a.jpg"}, {"title": "예약자 포토카드", "img": "img/sp_guides/rsv-07f70e1e.jpg"}, {"title": "콜라보카페 예약 안내", "img": "img/sp_guides/time-cbd2aead.jpg"}, {"title": "재입고 안내 (9/29)", "img": "img/sp_guides/restock-8083be38.jpg"}];
@@ -780,6 +787,7 @@ const SG_ITEMS = [
 ];
 const EVENTS = [{
   id:"sp",
+  kw:"신품방 판타지트 fantazit",
   rsv:true,
   title:"신을 품는 방법 × 판타지트",
   cardSub:"판타지트 (마포구 월드컵로 10길) · 첫 번째 생일잔치",
@@ -849,6 +857,7 @@ const EVENTS = [{
   guides:SP_GUIDES
 },{
   id:"sh",
+  kw:"사한 mofun 모펀",
   rsv:true,
   title:"사한 × MOFUN",
   cardSub:"모펀 카페 AK PLAZA 홍대",
@@ -902,6 +911,7 @@ const EVENTS = [{
   guides:SH_GUIDES
 },{
   id:"ws",
+  kw:"웻샌드 wetsand mofun 모펀",
   rsv:true,
   title:"Wet Sand × MOFUN",
   cardSub:"모펀 카페 AK PLAZA 홍대",
@@ -955,6 +965,7 @@ const EVENTS = [{
   guides:WS_GUIDES
 },{
   id:"usl",
+  kw:"언슬립 레봄 lebom",
   title:"언슬립 A+ #after class",
   cardSub:"카페 레봄 (성수) · 토·일만 운영",
   sub:"카페 레봄 · 토·일만 운영",
@@ -999,6 +1010,7 @@ const EVENTS = [{
   guides:USL_GUIDES
 },{
   id:"jinx",
+  kw:"징크스",
   title:"JINX POP-UP",
   cardSub:"서울 성동구 연무장 11길 7",
   place:"서울 성동구 연무장 11길 7",
@@ -1133,6 +1145,7 @@ const EVENTS = [{
   guides:KD_GUIDES.cafe
 },{
   id:"lap",
+  kw:"러브올플레이 모펀",
   rsv:true,
   title:"Love All Play × MOFUN",
   cardSub:"모펀 콜라보 카페 서교점",
@@ -1188,6 +1201,7 @@ const EVENTS = [{
   guides:LAP_GUIDES
 },{
   id:"sg",
+  kw:"시금치 모펀 아이파크몰 용산",
   title:"시금치 꽃다발 × 모펀",
   cardSub:"모펀 스토어 아이파크몰 용산점",
   sub:"모펀 스토어 아이파크몰 용산점",
@@ -1236,6 +1250,7 @@ const EVENTS = [{
   guides:SG_GUIDES
 },{
   id:"mtg",
+  kw:"마인드더갭 투니크 toonique",
   rsv:true,
   title:"Mind the Gap × Toonique",
   cardSub:"카페 투니크 홍대점",
@@ -1295,6 +1310,7 @@ const EVENTS = [{
   guides:MTG_GUIDES
 },{
   id:"bv",
+  kw:"부토니에르 패션",
   hasLd:true,
   title:"Boutonnière's Vow",
   cardSub:"SPACE BE 연남",
@@ -1331,7 +1347,7 @@ const EVENTS = [{
 }];
 
 const GROUPS = {
-  kdl:{title:"Kiss × Desire Land",sub:"굿즈모먼트 2F · 4F",dates:"2026.10.8(목) - 2026.11.1(일)",cover:KD_COVER,parts:["kdl-pop","kdl-cafe"],entry:"kdl-pop"}
+  kdl:{kw:"키스 미 이프 유 캔 디자이어 랜드 굿즈모먼트 goodsmoment",title:"Kiss × Desire Land",sub:"굿즈모먼트 2F · 4F",dates:"2026.10.8(목) - 2026.11.1(일)",cover:KD_COVER,parts:["kdl-pop","kdl-cafe"],entry:"kdl-pop"}
 };
 const HOME = [{ev:"sp"},{ev:"usl"},{ev:"ws"},{ev:"jinx"},{group:"kdl"},{ev:"lap"},{ev:"sg"},{ev:"mtg"},{ev:"bv"},{ev:"sh"}];
 
@@ -2155,38 +2171,53 @@ document.addEventListener("click", e=>{
   homeTab = b.dataset.s; try { localStorage.setItem("home-tab", homeTab); } catch(_){}
   renderHome();
 });
+let homeQ = "";
+const normQ = t => String(t||"").toLowerCase().replace(/[×x·&,()\[\]#<>]/g," ").replace(/\s+/g," ").trim();
+const evText = ev => [ev.title, ev.sub, ev.cardSub, ev.subFull, ev.kw, ...ev.items.map(i=>i.name)].filter(Boolean).join(" ");
+document.addEventListener("input", e=>{
+  if(e.target.id!=="homeQ") return;
+  homeQ = e.target.value; $("homeQx").hidden = !homeQ; renderHome();
+});
+document.addEventListener("click", e=>{
+  if(e.target.id!=="homeQx") return;
+  homeQ = ""; $("homeQ").value = ""; $("homeQx").hidden = true; renderHome(); $("homeQ").focus();
+});
 function renderHome(){
   const g = $("evgrid"); g.innerHTML = "";
   const cards = HOME.map(h=>{
-    let title, sub = "", dates, cover, count, n, sum, target;
+    let title, sub = "", dates, cover, count, n, sum, target, kw = "";
     if(h.group){
       const G = GROUPS[h.group], evs = G.parts.map(id=>EVENTS.find(e=>e.id===id));
       title = G.title; sub = G.sub; dates = G.dates; cover = G.cover; target = G.entry;
+      kw = [G.kw||"", ...evs.map(evText)].join(" ");
       count = evs.reduce((a,e)=>a+e.items.length,0);
       const tt = evs.map(totalsOf); n = tt.reduce((a,x)=>a+x.q,0); sum = tt.reduce((a,x)=>a+x.sum,0);
     } else {
       const ev = EVENTS.find(e=>e.id===h.ev);
       title = ev.title; sub = ev.cardSub || ""; dates = ev.dates; cover = ev.cover; target = ev.id;
+      kw = evText(ev);
       count = ev.items.length;
       const tt = totalsOf(ev); n = tt.q; sum = tt.sum;
     }
     const pend = (h.group ? GROUPS[h.group].parts.map(id=>EVENTS.find(e=>e.id===id)) : [EVENTS.find(e=>e.id===h.ev)])
       .reduce((a,e)=>a+loadState(e).carts.reduce((x,c)=>x+rsvCount(c,e.items),0),0);
     const st = evStatus(dates), r = dateRange(dates) || {start:0,end:0};
-    return {title,sub,dates,cover,count,n,sum,pend,target,status:st,start:r.start,end:r.end,ended:st==="ended"};
+    return {title,sub,dates,cover,count,n,sum,pend,target,kw:normQ([title,sub,dates,kw].join(" ")),status:st,start:r.start,end:r.end,ended:st==="ended"};
   });
   // 운영 중 → 운영 예정(시작 빠른 순) → 운영 종료(최근에 끝난 순, 먼저 끝난 행사가 맨 뒤)
   const rank = {live:0, soon:1, ended:2};
   cards.forEach((c,i)=>c.i=i);
   cards.sort((x,y)=> rank[x.status]-rank[y.status] || (x.status==="soon" ? x.start-y.start : x.status==="ended" ? y.end-x.end : x.i-y.i));
-  const cnt = {all:cards.length, live:0, soon:0, ended:0}; cards.forEach(c=>cnt[c.status]++);
+  const q = normQ(homeQ), hit = c => !q || q.split(" ").every(w=>c.kw.includes(w));
+  const found = cards.filter(hit);
+  const cnt = {all:found.length, live:0, soon:0, ended:0}; found.forEach(c=>cnt[c.status]++);
   const labels = {all:"전체", live:"운영 중", soon:"운영 예정", ended:"운영 종료"};
   document.querySelectorAll("#homeTabs button").forEach(b=>{
     const k = b.dataset.s; b.setAttribute("aria-pressed", String(k===homeTab));
     b.innerHTML = `${labels[k]} <b>${cnt[k]}</b>`;
   });
-  const shown = cards.filter(c=>homeTab==="all" || c.status===homeTab);
-  if(!shown.length) g.innerHTML = `<p class="homeempty">${labels[homeTab]}인 행사가 없어요.</p>`;
+  const shown = found.filter(c=>homeTab==="all" || c.status===homeTab);
+  if(!shown.length) g.innerHTML = q ? `<p class="homeempty">‘${esc(homeQ.trim())}’에 맞는 ${homeTab==="all" ? "" : labels[homeTab] + " "}행사가 없어요.</p>` : `<p class="homeempty">${labels[homeTab]}인 행사가 없어요.</p>`;
   shown.forEach(c=>{
     const b = document.createElement("div");
     b.setAttribute("role","button"); b.tabIndex = 0; b.className = "evcard" + (c.ended ? " ended" : "");
