@@ -192,7 +192,8 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .evcover{display:block;position:relative;width:100%;height:0;padding-bottom:125%;background:#f1f1f1;overflow:hidden}
 .evcard{display:block;height:100%;cursor:pointer;text-align:left;box-sizing:border-box}
 .evinfo{display:block}
-.evname{min-height:2.6em;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.evwork{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.evname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .evdate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .evmeta{margin-top:0 !important;padding-top:10px;flex-wrap:wrap;row-gap:2px}
 .evsum{margin-top:4px;font-size:13px;color:var(--hmuted);line-height:1.4;word-break:keep-all}
@@ -206,14 +207,15 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .giftline b{font-weight:600;color:#fff}
 .evcard.ended{opacity:.78}
 .evcard.ended .evcover img{filter:grayscale(1) brightness(.92)}
-.evcard.ended .evname,.evcard.ended .evdate,.evcard.ended .evmeta{color:var(--hmuted)}
+.evcard.ended .evwork,.evcard.ended .evname,.evcard.ended .evdate,.evcard.ended .evmeta{color:var(--hmuted)}
 .evcard.ended .evmeta b{color:var(--hmuted)}
 .endmask{position:absolute;top:0;left:0;right:0;bottom:0;background:rgba(30,30,30,.42);display:flex;align-items:center;justify-content:center}
 .endmask span{color:#fff;font-weight:800;font-size:24px;letter-spacing:.2em;padding:3px 4px 3px 16px;border:3px solid #fff;border-radius:3px;transform:rotate(-9deg)}
 .endpill{display:inline-block;vertical-align:middle;margin-left:10px;font-family:var(--sans);font-size:12px;font-weight:800;letter-spacing:.14em;padding:2px 8px 2px 10px;background:var(--ink);color:var(--sheet);border-radius:3px}
 .evcover img{position:absolute;top:0;left:0;width:100%;height:100%;object-fit:cover;object-position:50% 35%;display:block}
 .evinfo{padding:11px 12px 13px}
-.evname{font-weight:700;font-size:14.5px;line-height:1.3;letter-spacing:-.01em}
+.evwork{font-weight:700;font-size:15px;line-height:1.3;letter-spacing:-.01em}
+.evname{font-weight:600;font-size:12.5px;line-height:1.35;margin-top:3px;color:var(--ink);opacity:.72}
 .evdate{color:var(--hmuted);font-size:12px;margin-top:4px}
 .evmeta{display:flex;gap:9px;margin-top:8px;font-size:12px;color:var(--hmuted)}
 .evmeta b{color:var(--wine);font-weight:600}
@@ -787,6 +789,7 @@ const SG_ITEMS = [
 ];
 const EVENTS = [{
   id:"sp",
+  work:"신을 품는 방법",
   kw:"신을 품는 방법 신품법 판타지트 fantazit",
   rsv:true,
   title:"신을 품는 방법 × 판타지트",
@@ -857,6 +860,7 @@ const EVENTS = [{
   guides:SP_GUIDES
 },{
   id:"sh",
+  work:"사한",
   kw:"사한 mofun 모펀",
   rsv:true,
   title:"사한 × MOFUN",
@@ -911,6 +915,7 @@ const EVENTS = [{
   guides:SH_GUIDES
 },{
   id:"ws",
+  work:"웻샌드",
   kw:"웻샌드 wet sand wetsand mofun 모펀",
   rsv:true,
   title:"Wet Sand × MOFUN",
@@ -965,6 +970,7 @@ const EVENTS = [{
   guides:WS_GUIDES
 },{
   id:"usl",
+  work:"언슬립",
   kw:"언슬립 unsleep 레봄 lebom",
   title:"언슬립 A+ #after class",
   cardSub:"카페 레봄 (성수) · 토·일만 운영",
@@ -1010,6 +1016,7 @@ const EVENTS = [{
   guides:USL_GUIDES
 },{
   id:"jinx",
+  work:"징크스",
   kw:"징크스 jinx",
   title:"JINX POP-UP",
   cardSub:"서울 성동구 연무장 11길 7",
@@ -1145,6 +1152,7 @@ const EVENTS = [{
   guides:KD_GUIDES.cafe
 },{
   id:"lap",
+  work:"러브 올 플레이",
   kw:"러브 올 플레이 럽올 love all play 모펀 mofun",
   rsv:true,
   title:"Love All Play × MOFUN",
@@ -1201,6 +1209,7 @@ const EVENTS = [{
   guides:LAP_GUIDES
 },{
   id:"sg",
+  work:"시금치 꽃다발",
   kw:"시금치 꽃다발 시꽃 모펀 mofun 아이파크몰 용산",
   title:"시금치 꽃다발 × 모펀",
   cardSub:"모펀 스토어 아이파크몰 용산점",
@@ -1250,6 +1259,7 @@ const EVENTS = [{
   guides:SG_GUIDES
 },{
   id:"mtg",
+  work:"마인드 더 갭",
   kw:"마인드 더 갭 마더갭 mind the gap 투니크 toonique",
   rsv:true,
   title:"Mind the Gap × Toonique",
@@ -1310,6 +1320,7 @@ const EVENTS = [{
   guides:MTG_GUIDES
 },{
   id:"bv",
+  work:"패션",
   kw:"패션 passion 부토니에의 서약 부토니에르",
   hasLd:true,
   title:"Boutonnière's Vow",
@@ -1347,7 +1358,7 @@ const EVENTS = [{
 }];
 
 const GROUPS = {
-  kdl:{kw:"키스 미 이프 유 캔 디자이어 미 이프 유 캔 키이프 디이프 kiss me if you can desire me if you can 키스 디자이어 랜드 굿즈모먼트 goodsmoment",title:"Kiss × Desire Land",sub:"굿즈모먼트 2F · 4F",dates:"2026.10.8(목) - 2026.11.1(일)",cover:KD_COVER,parts:["kdl-pop","kdl-cafe"],entry:"kdl-pop"}
+  kdl:{work:"키스 미 이프 유 캔 · 디자이어 미 이프 유 캔",kw:"키스 미 이프 유 캔 디자이어 미 이프 유 캔 키이프 디이프 kiss me if you can desire me if you can 키스 디자이어 랜드 굿즈모먼트 goodsmoment",title:"Kiss × Desire Land",sub:"굿즈모먼트 2F · 4F",dates:"2026.10.8(목) - 2026.11.1(일)",cover:KD_COVER,parts:["kdl-pop","kdl-cafe"],entry:"kdl-pop"}
 };
 const HOME = [{ev:"sp"},{ev:"usl"},{ev:"ws"},{ev:"jinx"},{group:"kdl"},{ev:"lap"},{ev:"sg"},{ev:"mtg"},{ev:"bv"},{ev:"sh"}];
 
@@ -2185,16 +2196,16 @@ document.addEventListener("click", e=>{
 function renderHome(){
   const g = $("evgrid"); g.innerHTML = "";
   const cards = HOME.map(h=>{
-    let title, sub = "", dates, cover, count, n, sum, target, kw = "";
+    let title, work, sub = "", dates, cover, count, n, sum, target, kw = "";
     if(h.group){
       const G = GROUPS[h.group], evs = G.parts.map(id=>EVENTS.find(e=>e.id===id));
-      title = G.title; sub = G.sub; dates = G.dates; cover = G.cover; target = G.entry;
+      title = G.title; work = G.work || G.title; sub = G.sub; dates = G.dates; cover = G.cover; target = G.entry;
       kw = [G.kw||"", ...evs.map(evText)].join(" ");
       count = evs.reduce((a,e)=>a+e.items.length,0);
       const tt = evs.map(totalsOf); n = tt.reduce((a,x)=>a+x.q,0); sum = tt.reduce((a,x)=>a+x.sum,0);
     } else {
       const ev = EVENTS.find(e=>e.id===h.ev);
-      title = ev.title; sub = ev.cardSub || ""; dates = ev.dates; cover = ev.cover; target = ev.id;
+      title = ev.title; work = ev.work || ev.title; sub = ev.cardSub || ""; dates = ev.dates; cover = ev.cover; target = ev.id;
       kw = evText(ev);
       count = ev.items.length;
       const tt = totalsOf(ev); n = tt.q; sum = tt.sum;
@@ -2202,7 +2213,7 @@ function renderHome(){
     const pend = (h.group ? GROUPS[h.group].parts.map(id=>EVENTS.find(e=>e.id===id)) : [EVENTS.find(e=>e.id===h.ev)])
       .reduce((a,e)=>a+loadState(e).carts.reduce((x,c)=>x+rsvCount(c,e.items),0),0);
     const st = evStatus(dates), r = dateRange(dates) || {start:0,end:0};
-    return {title,sub,dates,cover,count,n,sum,pend,target,kw:normQ([title,sub,dates,kw].join(" ")),status:st,start:r.start,end:r.end,ended:st==="ended"};
+    return {title,work,sub,dates,cover,count,n,sum,pend,target,kw:normQ([work,title,sub,dates,kw].join(" ")),status:st,start:r.start,end:r.end,ended:st==="ended"};
   });
   // 운영 중 → 운영 예정(시작 빠른 순) → 운영 종료(최근에 끝난 순, 먼저 끝난 행사가 맨 뒤)
   const rank = {live:0, soon:1, ended:2};
@@ -2224,7 +2235,7 @@ function renderHome(){
     b.setAttribute("role","button"); b.tabIndex = 0; b.className = "evcard" + (c.ended ? " ended" : "");
     b.onkeydown = e=>{ if(e.key==="Enter" || e.key===" "){ e.preventDefault(); go(c.target); } };
     b.innerHTML = `<div class="evcover"><img loading="lazy" src="${c.cover}" alt="${esc(c.title)} 대표 이미지">${c.ended ? `<div class="endmask"><span>END</span></div>` : ""}</div>
-      <div class="evinfo"><div class="evname">${esc(c.title)}</div>
+      <div class="evinfo"><div class="evwork">${esc(c.work)}</div>${c.work!==c.title ? `<div class="evname">${esc(c.title)}</div>` : ""}
       ${c.sub ? `<div class="evdate">${esc(c.sub)}</div>` : ""}
       ${c.dates ? `<div class="evdate">${esc(c.dates)}</div>` : ""}
       <div class="evmeta"><span>${c.count}종</span><span>내 리스트 <b>${c.n}개</b></span></div>
