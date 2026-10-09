@@ -578,8 +578,8 @@ const KP_ITEMS = [
   {no:19,cat:KP_CATS[2],name:"KISS X DESIRE LAND 쇼핑백",sub:"350×120×270mm",price:3000,limit:3},
   {no:20,cat:KP_CATS[2],name:"쪼구만 쪼구미들 랜덤 아크릴 블록",sub:"총 16종 중 1팩 랜덤 1개입 · 두께 8T, 높이 약 30mm",price:4800,limit:30,note:"랜덤 상품 구매 제한(1인 30개)은 10월 11일까지 적용"},
   {no:21,cat:KP_CATS[2],name:"KISS ME X DESIRE ME HIGHLIGHT CALENDAR 2027",sub:"월요일 시작 달력 12P + 일러스트 15P + 휴가중·열일중·회의중 3P 등 총 34P · 달력 종이 약 155×210mm",price:20000,limit:10},
-  {no:22,cat:KP_CATS[3],name:"쪼구미 커플 10cm 인형 세트 (체이스×조쉬)",sub:"체이스·조쉬 10cm 인형 + 멤버 카드 2장 + 상자 · 주문 제작 · 예약 상품",price:60000,note:"주문 제작·예약 판매 상품 · 2027년 1월 말부터 순차 수령"},
-  {no:23,cat:KP_CATS[3],name:"쪼구미 커플 10cm 인형 세트 (그레이슨×데인)",sub:"그레이슨·데인 10cm 인형 + 멤버 카드 2장 + 상자 · 주문 제작 · 예약 상품",price:60000,note:"주문 제작·예약 판매 상품 · 2027년 1월 말부터 순차 수령"},
+  {no:22,cat:KP_CATS[3],name:"쪼구미 커플 10cm 인형 세트 (체이스×조쉬)",sub:"체이스·조쉬 10cm 인형 + 멤버 카드 2장 + 상자 · 주문 제작 · 예약 상품",price:60000,preorder:true,note:"주문 제작·예약 판매 상품 · 2027년 1월 말부터 순차 수령"},
+  {no:23,cat:KP_CATS[3],name:"쪼구미 커플 10cm 인형 세트 (그레이슨×데인)",sub:"그레이슨·데인 10cm 인형 + 멤버 카드 2장 + 상자 · 주문 제작 · 예약 상품",price:60000,preorder:true,note:"주문 제작·예약 판매 상품 · 2027년 1월 말부터 순차 수령"},
 ];
 const KD_CATS = ["키스 미 이프 유 캔","디자이어 미 이프 유 캔","스페셜 디저트"];
 const KD_ITEMS = [
@@ -732,6 +732,7 @@ const SG_ITEMS = [
 ];
 const EVENTS = [{
   id:"sh",
+  rsv:true,
   title:"사한 × MOFUN",
   cardSub:"모펀 카페 AK PLAZA 홍대",
   sub:"모펀 카페 AK PLAZA 홍대",
@@ -784,6 +785,7 @@ const EVENTS = [{
   guides:SH_GUIDES
 },{
   id:"ws",
+  rsv:true,
   title:"Wet Sand × MOFUN",
   cardSub:"모펀 카페 AK PLAZA 홍대",
   sub:"모펀 카페 AK PLAZA 홍대",
@@ -961,10 +963,12 @@ const EVENTS = [{
     "금액 구간별 상품은 중복으로 증정돼요. (예: 12만원 구매 시 랜덤 포토카드 4종 + 랜덤 A4 포스터 1종 + 랜덤 캔뱃지 1종)",
     "SPECIAL GIFT는 팝업스토어 기간 내 소진될 수 있고, 소진되면 증정이 끝나요. 일시 품절이면 나중에 방문해서 받을 수 있어요.",
     "오프라인과 온라인에서 구매한 상품, 팝업스토어와 카페는 구매 금액이 합산되지 않아요.",
+    "팝업 종료 후 일부 상품은 온라인으로 판매될 예정이에요. 19번 KISS X DESIRE LAND 쇼핑백은 오프라인 한정이고, SPECIAL GIFT는 오프라인 구매 한정 특전이라 온라인 구매에는 적용되지 않아요.",
     "엽서팩 시크릿 상품은 성인만 구입할 수 있어요.",
     "굿즈 리스트 정정(투유드림 공지): 키스 미 이프 유 캔 엽서팩은 시크릿 A와 B, 디자이어 미 이프 유 캔 엽서팩은 A와 B가 서로 바뀌었어요. 정정된 목록 기준으로 넣었어요.",
-    "PRE-ORDER 상품은 주문 제작·예약 판매라서 2027년 1월 말부터 순차적으로 받을 수 있어요. 구매 금액(특전 계산)에 포함되는지는 공지에 없어서 포함해서 계산했어요.",
-    "상품 구매 수량 제한 (1인, 상품별): 아크릴류 최대 5개 · 지류 최대 10개 · 랜덤 상품 최대 30개 (10월 11일까지) · 쇼핑백 최대 3개. 예약 인형 세트는 제한 안내가 없었어요."
+    "쪼구미 커플 10cm 인형 세트는 주문 제작·예약 판매 상품이에요. 오프라인은 팝업 기간 동안 예약 판매하고 굿즈모먼트에서 수령, 온라인은 10/8~10/14 기간 한정 예약 판매로 택배 수령이에요. 2027년 1월 말부터 순차적으로 받을 수 있고, 인형 샘플은 팝업 기간 동안 전시돼요.",
+    "인형 세트는 온·오프라인 모두 구매 수량 제한이 없어요. 구매 금액(특전 계산)에 포함되는지는 공지에 없어서 포함해서 계산했어요. 내역에는 ‘예약’으로 표시돼요.",
+    "상품 구매 수량 제한 (1인, 상품별): 아크릴류 최대 5개 · 지류 최대 10개 · 랜덤 상품 최대 30개 (10월 11일까지) · 쇼핑백 최대 3개. 구매 수량 제한은 상품별 기준이고 판매 상황에 따라 바뀔 수 있어요."
   ],
   complete:{
     title:"예약 · 방문자 특전",
@@ -1012,6 +1016,7 @@ const EVENTS = [{
   guides:KD_GUIDES.cafe
 },{
   id:"lap",
+  rsv:true,
   title:"Love All Play × MOFUN",
   cardSub:"모펀 콜라보 카페 서교점",
   sub:"모펀 콜라보 카페 서교점",
@@ -1066,6 +1071,7 @@ const EVENTS = [{
   guides:LAP_GUIDES
 },{
   id:"sg",
+  rsv:true,
   title:"시금치 꽃다발 × 모펀",
   cardSub:"모펀 스토어 아이파크몰 용산점",
   sub:"모펀 스토어 아이파크몰 용산점",
@@ -1114,6 +1120,7 @@ const EVENTS = [{
   guides:SG_GUIDES
 },{
   id:"mtg",
+  rsv:true,
   title:"Mind the Gap × Toonique",
   cardSub:"카페 투니크 홍대점",
   sub:"카페 투니크 홍대점",
@@ -1266,6 +1273,7 @@ function loadState(ev){
   }));
   if((s.active==="cafe" && !hasCafe(ev)) || (s.active==="ev" && !ev.complete) || (s.active==="ld" && !ev.hasLd)) s.active = s.carts[0].id;
   if(!specialActive(s.active) && !s.carts.some(c=>c.id===s.active)) s.active = s.carts[0].id;
+  if(!ev.rsv) s.carts.forEach(c=>{ delete c.rsv; });
   if(!s.nextId) s.nextId = Math.max(...s.carts.map(c=>c.id)) + 1;
   return s;
 }
@@ -1290,7 +1298,7 @@ function cartLines(c, items){
   const out = [];
   (items||ITEMS).forEach(it=>(it.vars||[null]).forEach(v=>{
     const q = c.qty[key(it,v)]||0;
-    const r = !!(c.rsv && c.rsv[it.no]) ? " (예약)" : "";
+    const r = (it.preorder || (c.rsv && c.rsv[it.no])) ? " (예약)" : "";
     if(q) out.push({label:`${tagOf(it)} ${it.name}${v?` [${v}]`:""}${r}`,name:`${it.name}${v?` [${v}]`:""}${r}`,rsv:!!r,cat:it.cat,unit:it.price,q,sum:q*it.price});
   }));
   return out;
@@ -1660,7 +1668,7 @@ function buildItem(it,cur){
         <div class="price">${priceHtml}</div>
         ${it.note?`<div class="note">${esc(it.note)}</div>`:""}
       </div>
-      <div class="tags">${!isCafeItem(it) && !it.noBenefit && !specialActive(state.active) ? `<label class="rsv${cur.rsv && cur.rsv[it.no] ? " on" : ""}"><input type="checkbox" data-rsv="${it.no}"${cur.rsv && cur.rsv[it.no] ? " checked" : ""}>예약</label>` : ""}${it.limit?`<span class="limit">${limitLabel(it)}</span>`:""}${it.noBenefit?`<span class="limit ex">특전 금액 제외</span>`:""}</div>
+      <div class="tags">${it.preorder ? `<span class="limit">예약 판매</span>` : ""}${EV.rsv && !it.preorder && !isCafeItem(it) && !it.noBenefit && !specialActive(state.active) ? `<label class="rsv${cur.rsv && cur.rsv[it.no] ? " on" : ""}"><input type="checkbox" data-rsv="${it.no}"${cur.rsv && cur.rsv[it.no] ? " checked" : ""}>예약</label>` : ""}${it.limit?`<span class="limit">${limitLabel(it)}</span>`:""}${it.noBenefit?`<span class="limit ex">특전 금액 제외</span>`:""}</div>
     </div>`;
   const rb = el.querySelector("[data-rsv]");
   if(rb) rb.onchange = ()=>{ cur.rsv = cur.rsv || {}; if(rb.checked) cur.rsv[it.no] = true; else delete cur.rsv[it.no]; save(); render(); };
