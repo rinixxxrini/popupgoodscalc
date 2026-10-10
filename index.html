@@ -213,7 +213,8 @@ body.home{background:linear-gradient(var(--htop) 0,var(--homebg) 170px) no-repea
 .evname{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .evdate{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .evmeta{margin-top:0 !important;padding-top:10px;flex-wrap:wrap;row-gap:2px}
-.evsum{margin-top:4px;font-size:13px;color:var(--hmuted);line-height:1.4;word-break:keep-all}
+.evsums{margin-top:4px;min-height:calc(2 * 1.4 * 13px)}
+.evsum{font-size:13px;color:var(--hmuted);line-height:1.4;word-break:keep-all}
 .evsum b{font-weight:600}
 .evsum.on{color:var(--ink)}
 .evsum.on b{color:var(--wine);font-weight:700}
@@ -1934,21 +1935,18 @@ function updateBar(){
   const act = state.active;
   if(act!=="ld" && act!=="ev") renderGift();
   renderGiftMini();
-  const cur = cart();
-  const crows = state.carts.map(c=>({t:cartTotals(c),on:c===cur && !specialActive(act),name:c.name||"이름 없음"}));
-  sidePools().forEach(p=>{ const t = cartTotals(p.c); if(t.q || act===p.kind) crows.push({t,on:act===p.kind,name:p.c.name}); });
-  $("curList").innerHTML = crows.map(r=>`<div class="currow${r.on?" act":""}"><span>${esc(r.name)} · ${r.t.q}개</span><b>${won(r.t.sum)}</b></div>`).join("");
-  $("giftLine").innerHTML = `<b>${esc(EV.giftTitle||"구매 특전")}</b> · ${esc(giftText(allGifts().g))}` +
-    (hasCafe(EV) ? `<br><b>${esc(EV.cafeGiftTitle||"메뉴 증정품")}</b> · ${esc(cafeGiftText())}` : "");
-  const multi = state.carts.length>1 || sidePools().some(p=>cartTotals(p.c).q>0);
-  const all = poolTotals();
+  // 하단 바는 지금 탭 것만: MD 탭(·이벤트 탭)은 굿즈 장바구니, 럭드/카페 탭은 그 풀만
+  const cur = cart(), side = act==="ld" || act==="cafe";
+  const scope = side ? sidePools().filter(p=>p.kind===act) : state.carts.map(c=>({c,kind:"md"}));
+  $("curList").innerHTML = scope.map(x=>{ const t = cartTotals(x.c), on = side || x.c===cur;
+    return `<div class="currow${on && scope.length>1?" act":""}"><span>${esc(x.c.name||"이름 없음")} · ${t.q}개</span><b>${won(t.sum)}</b></div>`; }).join("");
+  $("giftLine").innerHTML = act==="ld" ? "" : act==="cafe" ? `<b>${esc(EV.cafeGiftTitle||"메뉴 증정품")}</b> · ${esc(cafeGiftText())}` : `<b>${esc(EV.giftTitle||"구매 특전")}</b> · ${esc(giftText(allGifts().g))}`;
+  const multi = scope.length>1;
+  const all = scope.reduce((a,x)=>{ const t = cartTotals(x.c); return {q:a.q+t.q,sum:a.sum+t.sum}; },{q:0,sum:0});
   $("tot").textContent = won(all.sum);
-  const mdQ = state.carts.reduce((a,c)=>a+cartTotals(c).q,0), parts = [];
-  if(mdQ) parts.push(`굿즈 ${mdQ}개`);
-  sidePools().forEach(p=>{ const q = cartTotals(p.c).q; if(q) parts.push(`${p.kind==="cafe" ? "카페 메뉴" : p.c.name} ${q}개`); });
-  $("cnt").innerHTML = parts.length>1 ? `<span class="cl">전체 합계</span>${parts.map(t=>`<span class="cl">${esc(t)}</span>`).join("")}` : multi ? `<span class="cl">전체 합계</span><span class="cl">${all.q}개</span>` : `${all.q}개 담음`;
+  $("cnt").innerHTML = multi ? `<span class="cl">전체 합계</span><span class="cl">${all.q}개</span>` : `${all.q}개 담음`;
   const r = $("receipt");
-  if(!all.q){ r.innerHTML = `<div class="empty">담은 굿즈가 없어요.</div>`; return; }
+  if(!all.q){ r.innerHTML = `<div class="empty">${act==="ld" ? "담은 럭키드로우가 없어요." : act==="cafe" ? "담은 메뉴가 없어요." : "담은 굿즈가 없어요."}</div>`; return; }
   let rows = "";
   const addCart = (c,kind)=>{
     const ls = cartLines(c); if(!ls.length) return;
@@ -1961,9 +1959,8 @@ function updateBar(){
     if(kind==="md" && !EV.combineCarts) rows += `<tr class="gr"><td colspan="3">특전: ${giftText(benefits(c).g)}</td></tr>`;
     if(kind==="cafe") rows += `<tr class="gr"><td colspan="3">증정품: ${cafeGiftText()}</td></tr>`;
   };
-  state.carts.forEach(c=>addCart(c,"md"));
-  sidePools().forEach(p=>addCart(p.c,p.kind));
-  if(state.carts.length>1 || EV.combineCarts) rows += `<tr class="ch"><td colspan="3">전체 특전: ${giftText(allGifts().g)}</td></tr>`;
+  scope.forEach(x=>addCart(x.c,x.kind));
+  if(!side && (state.carts.length>1 || EV.combineCarts)) rows += `<tr class="ch"><td colspan="3">전체 특전: ${giftText(allGifts().g)}</td></tr>`;
   r.innerHTML = `<table>${rows}</table>`;
 }
 
@@ -2242,7 +2239,9 @@ function listN(ev){
 }
 function totalsOf(ev){
   const s = loadState(ev);
-  return allPools(s).reduce((a,c)=>{ const t = cartTotals(c,ev.items); return {q:a.q+t.q, sum:a.sum+t.sum}; },{q:0,sum:0});
+  const r = allPools(s).reduce((a,c)=>{ const t = cartTotals(c,ev.items); return {q:a.q+t.q, sum:a.sum+t.sum}; },{q:0,sum:0});
+  r.ld = cartTotals(s.ld,ev.items).sum;
+  return r;
 }
 let homeTab = (()=>{ try { return localStorage.getItem("home-tab") || "all"; } catch(e){ return "all"; } })();
 document.addEventListener("click", e=>{
@@ -2311,24 +2310,24 @@ document.addEventListener("click", e=>{
 function renderHome(){
   const g = $("evgrid"); g.innerHTML = "";
   const cards = HOME.map(h=>{
-    let title, work, sub = "", dates, cover, count, n, sum, target, kw = "";
+    let title, work, sub = "", dates, cover, count, n, sum, ld = 0, target, kw = "";
     if(h.group){
       const G = GROUPS[h.group], evs = G.parts.map(id=>EVENTS.find(e=>e.id===id));
       title = G.title; work = G.work || G.title; sub = G.sub; dates = G.dates; cover = G.cover; target = G.entry;
       kw = [G.kw||"", ...evs.map(evText)].join(" ");
       count = evs.reduce((a,e)=>a+e.items.length,0);
-      const tt = evs.map(totalsOf); n = tt.reduce((a,x)=>a+x.q,0); sum = tt.reduce((a,x)=>a+x.sum,0);
+      const tt = evs.map(totalsOf); n = tt.reduce((a,x)=>a+x.q,0); sum = tt.reduce((a,x)=>a+x.sum,0); ld = tt.reduce((a,x)=>a+x.ld,0);
     } else {
       const ev = EVENTS.find(e=>e.id===h.ev);
       title = ev.title; work = ev.work || ev.title; sub = ev.cardSub || ""; dates = ev.dates; cover = ev.cover; target = ev.id;
       kw = evText(ev);
       count = ev.items.length;
-      const tt = totalsOf(ev); n = tt.q; sum = tt.sum;
+      const tt = totalsOf(ev); n = tt.q; sum = tt.sum; ld = tt.ld;
     }
     const pend = (h.group ? GROUPS[h.group].parts.map(id=>EVENTS.find(e=>e.id===id)) : [EVENTS.find(e=>e.id===h.ev)])
       .reduce((a,e)=>a+loadState(e).carts.reduce((x,c)=>x+rsvCount(c,e.items),0),0);
     const st = evStatus(dates), r = dateRange(dates) || {start:0,end:0};
-    return {title,work,sub,dates,cover,count,n,sum,pend,target,kw:normQ([work,title,sub,dates,kw].join(" ")),status:st,start:r.start,end:r.end,ended:st==="ended"};
+    return {title,work,sub,dates,cover,count,n,sum,ld,pend,target,kw:normQ([work,title,sub,dates,kw].join(" ")),status:st,start:r.start,end:r.end,ended:st==="ended"};
   });
   // 운영 중 → 운영 예정(시작 빠른 순) → 운영 종료(최근에 끝난 순, 먼저 끝난 행사가 맨 뒤)
   const rank = {live:0, soon:1, ended:2};
@@ -2354,7 +2353,7 @@ function renderHome(){
       ${c.sub ? `<div class="evdate">${esc(c.sub)}</div>` : ""}
       ${c.dates ? `<div class="evdate">${esc(c.dates)}</div>` : ""}
       <div class="evmeta"><span>${c.count}종</span><span>내 리스트 <b>${c.n}개</b></span></div>
-      <div class="evsum${c.sum?" on":""}">담은 금액 <b>${won(c.sum)}</b></div>${c.pend ? `<span class="evpick">예약 구매 ${c.pend}개</span>` : ""}</div>`;
+      <div class="evsums">${c.ld ? `<div class="evsum${c.sum-c.ld?" on":""}">담은 금액 <b>${won(c.sum-c.ld)}</b></div><div class="evsum on">럭키드로우 <b>${won(c.ld)}</b></div>` : `<div class="evsum${c.sum?" on":""}">담은 금액 <b>${won(c.sum)}</b></div>`}</div>${c.pend ? `<span class="evpick">예약 구매 ${c.pend}개</span>` : ""}</div>`;
     b.onclick = ()=>go(c.target);
     g.appendChild(b);
   });
